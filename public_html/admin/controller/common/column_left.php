@@ -245,33 +245,6 @@ class ControllerCommonColumnLeft extends Controller {
 				);	
 			}
 			
-			// Voucher
-			$voucher = array();
-			
-			if ($this->user->hasPermission('access', 'sale/voucher')) {
-				$voucher[] = array(
-					'name'	   => $this->language->get('text_voucher'),
-					'href'     => $this->url->link('sale/voucher', 'user_token=' . $this->session->data['user_token'], true),
-					'children' => array()		
-				);	
-			}
-			
-			if ($this->user->hasPermission('access', 'sale/voucher_theme')) {
-				$voucher[] = array(
-					'name'	   => $this->language->get('text_voucher_theme'),
-					'href'     => $this->url->link('sale/voucher_theme', 'user_token=' . $this->session->data['user_token'], true),
-					'children' => array()		
-				);	
-			}
-			
-			if ($voucher) {
-				$sale[] = array(
-					'name'	   => $this->language->get('text_voucher'),
-					'href'     => '',
-					'children' => $voucher		
-				);		
-			}
-			
 			if ($sale) {
 				$data['menus'][] = array(
 					'id'       => 'menu-sale',

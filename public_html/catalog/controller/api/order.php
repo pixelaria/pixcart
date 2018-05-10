@@ -70,7 +70,7 @@ class ControllerApiOrder extends Controller {
 			}
 
 			// Cart
-			if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
+			if ((!$this->cart->hasProducts()) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 				$json['error'] = $this->language->get('error_stock');
 			}
 
@@ -216,25 +216,6 @@ class ControllerApiOrder extends Controller {
 						'tax'        => $this->tax->getTax($product['price'], $product['tax_class_id']),
 						'reward'     => $product['reward']
 					);
-				}
-
-				// Gift Voucher
-				$order_data['vouchers'] = array();
-
-				if (!empty($this->session->data['vouchers'])) {
-					foreach ($this->session->data['vouchers'] as $voucher) {
-						$order_data['vouchers'][] = array(
-							'description'      => $voucher['description'],
-							'code'             => token(10),
-							'to_name'          => $voucher['to_name'],
-							'to_email'         => $voucher['to_email'],
-							'from_name'        => $voucher['from_name'],
-							'from_email'       => $voucher['from_email'],
-							'voucher_theme_id' => $voucher['voucher_theme_id'],
-							'message'          => $voucher['message'],
-							'amount'           => $voucher['amount']
-						);
-					}
 				}
 
 				// Order Totals
@@ -440,7 +421,7 @@ class ControllerApiOrder extends Controller {
 				}
 
 				// Cart
-				if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
+				if ((!$this->cart->hasProducts()) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
 					$json['error'] = $this->language->get('error_stock');
 				}
 
@@ -586,25 +567,6 @@ class ControllerApiOrder extends Controller {
 							'tax'        => $this->tax->getTax($product['price'], $product['tax_class_id']),
 							'reward'     => $product['reward']
 						);
-					}
-
-					// Gift Voucher
-					$order_data['vouchers'] = array();
-
-					if (!empty($this->session->data['vouchers'])) {
-						foreach ($this->session->data['vouchers'] as $voucher) {
-							$order_data['vouchers'][] = array(
-								'description'      => $voucher['description'],
-								'code'             => token(10),
-								'to_name'          => $voucher['to_name'],
-								'to_email'         => $voucher['to_email'],
-								'from_name'        => $voucher['from_name'],
-								'from_email'       => $voucher['from_email'],
-								'voucher_theme_id' => $voucher['voucher_theme_id'],
-								'message'          => $voucher['message'],
-								'amount'           => $voucher['amount']
-							);
-						}
 					}
 
 					// Order Totals

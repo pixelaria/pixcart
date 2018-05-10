@@ -227,18 +227,6 @@ class ControllerMailOrder extends Controller {
 			);
 		}
 
-		// Vouchers
-		$data['vouchers'] = array();
-
-		$order_vouchers = $this->model_checkout_order->getOrderVouchers($order_info['order_id']);
-
-		foreach ($order_vouchers as $order_voucher) {
-			$data['vouchers'][] = array(
-				'description' => $order_voucher['description'],
-				'amount'      => $this->currency->format($order_voucher['amount'], $order_info['currency_code'], $order_info['currency_value']),
-			);
-		}
-
 		// Order Totals
 		$data['totals'] = array();
 		
@@ -420,17 +408,6 @@ class ControllerMailOrder extends Controller {
 				);
 			}
 			
-			$data['vouchers'] = array();
-			
-			$order_vouchers = $this->model_checkout_order->getOrderVouchers($order_id);
-
-			foreach ($order_vouchers as $order_voucher) {
-				$data['vouchers'][] = array(
-					'description' => $order_voucher['description'],
-					'amount'      => html_entity_decode($this->currency->format($order_voucher['amount'], $order_info['currency_code'], $order_info['currency_value']), ENT_NOQUOTES, 'UTF-8')
-				);					
-			}
-
 			$data['totals'] = array();
 			
 			$order_totals = $this->model_checkout_order->getOrderTotals($order_id);

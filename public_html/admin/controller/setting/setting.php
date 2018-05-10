@@ -89,18 +89,6 @@ class ControllerSettingSetting extends Controller {
 			$data['error_login_attempts'] = '';
 		}
 
-		if (isset($this->error['voucher_min'])) {
-			$data['error_voucher_min'] = $this->error['voucher_min'];
-		} else {
-			$data['error_voucher_min'] = '';
-		}
-
-		if (isset($this->error['voucher_max'])) {
-			$data['error_voucher_max'] = $this->error['voucher_max'];
-		} else {
-			$data['error_voucher_max'] = '';
-		}
-
 		if (isset($this->error['processing_status'])) {
 			$data['error_processing_status'] = $this->error['processing_status'];
 		} else {
@@ -391,18 +379,6 @@ class ControllerSettingSetting extends Controller {
 			$data['config_review_guest'] = $this->request->post['config_review_guest'];
 		} else {
 			$data['config_review_guest'] = $this->config->get('config_review_guest');
-		}
-
-		if (isset($this->request->post['config_voucher_min'])) {
-			$data['config_voucher_min'] = $this->request->post['config_voucher_min'];
-		} else {
-			$data['config_voucher_min'] = $this->config->get('config_voucher_min');
-		}
-
-		if (isset($this->request->post['config_voucher_max'])) {
-			$data['config_voucher_max'] = $this->request->post['config_voucher_max'];
-		} else {
-			$data['config_voucher_max'] = $this->config->get('config_voucher_max');
 		}
 
 		if (isset($this->request->post['config_tax'])) {
@@ -922,14 +898,6 @@ class ControllerSettingSetting extends Controller {
 
 		if ($this->request->post['config_login_attempts'] < 1) {
 			$this->error['login_attempts'] = $this->language->get('error_login_attempts');
-		}
-
-		if (!$this->request->post['config_voucher_min']) {
-			$this->error['voucher_min'] = $this->language->get('error_voucher_min');
-		}
-
-		if (!$this->request->post['config_voucher_max']) {
-			$this->error['voucher_max'] = $this->language->get('error_voucher_max');
 		}
 
 		if (!isset($this->request->post['config_processing_status'])) {

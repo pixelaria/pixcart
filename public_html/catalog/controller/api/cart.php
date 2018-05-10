@@ -108,8 +108,6 @@ class ControllerApiCart extends Controller {
 			if (isset($this->request->post['key'])) {
 				$this->cart->remove($this->request->post['key']);
 
-				unset($this->session->data['vouchers'][$this->request->post['key']]);
-
 				$json['success'] = $this->language->get('text_success');
 
 				unset($this->session->data['shipping_method']);
@@ -180,26 +178,6 @@ class ControllerApiCart extends Controller {
 					'total'      => $this->currency->format($this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')) * $product['quantity'], $this->session->data['currency']),
 					'reward'     => $product['reward']
 				);
-			}
-
-			// Voucher
-			$json['vouchers'] = array();
-
-			if (!empty($this->session->data['vouchers'])) {
-				foreach ($this->session->data['vouchers'] as $key => $voucher) {
-					$json['vouchers'][] = array(
-						'code'             => $voucher['code'],
-						'description'      => $voucher['description'],
-						'from_name'        => $voucher['from_name'],
-						'from_email'       => $voucher['from_email'],
-						'to_name'          => $voucher['to_name'],
-						'to_email'         => $voucher['to_email'],
-						'voucher_theme_id' => $voucher['voucher_theme_id'],
-						'message'          => $voucher['message'],
-						'price'            => $this->currency->format($voucher['amount'], $this->session->data['currency']),			
-						'amount'           => $voucher['amount']
-					);
-				}
 			}
 
 			// Totals

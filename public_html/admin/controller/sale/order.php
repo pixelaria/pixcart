@@ -528,11 +528,8 @@ class ControllerSaleOrder extends Controller {
 				);
 			}
 
-			// Vouchers
-			$data['order_vouchers'] = $this->model_sale_order->getOrderVouchers($this->request->get['order_id']);
-
+			
 			$data['coupon'] = '';
-			$data['voucher'] = '';
 			$data['reward'] = '';
 
 			$data['order_totals'] = array();
@@ -540,7 +537,7 @@ class ControllerSaleOrder extends Controller {
 			$order_totals = $this->model_sale_order->getOrderTotals($this->request->get['order_id']);
 
 			foreach ($order_totals as $order_total) {
-				// If coupon, voucher or reward points
+				// If coupon or reward points
 				$start = strpos($order_total['title'], '(') + 1;
 				$end = strrpos($order_total['title'], ')');
 
@@ -597,7 +594,6 @@ class ControllerSaleOrder extends Controller {
 			$data['shipping_code'] = '';
 
 			$data['order_products'] = array();
-			$data['order_vouchers'] = array();
 			$data['order_totals'] = array();
 
 			$data['order_status_id'] = $this->config->get('config_order_status_id');
@@ -607,7 +603,6 @@ class ControllerSaleOrder extends Controller {
 			$data['currency_code'] = $this->config->get('config_currency');
 
 			$data['coupon'] = '';
-			$data['voucher'] = '';
 			$data['reward'] = '';
 		}
 
@@ -671,12 +666,7 @@ class ControllerSaleOrder extends Controller {
 
 		$data['currencies'] = $this->model_localisation_currency->getCurrencies();
 
-		$data['voucher_min'] = $this->config->get('config_voucher_min');
-
-		$this->load->model('sale/voucher_theme');
-
-		$data['voucher_themes'] = $this->model_sale_voucher_theme->getVoucherThemes();
-
+		
 		// API login
 		$data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
 		
@@ -945,18 +935,6 @@ class ControllerSaleOrder extends Controller {
 					'price'    		   => $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $order_info['currency_code'], $order_info['currency_value']),
 					'total'    		   => $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order_info['currency_code'], $order_info['currency_value']),
 					'href'     		   => $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $product['product_id'], true)
-				);
-			}
-
-			$data['vouchers'] = array();
-
-			$vouchers = $this->model_sale_order->getOrderVouchers($this->request->get['order_id']);
-
-			foreach ($vouchers as $voucher) {
-				$data['vouchers'][] = array(
-					'description' => $voucher['description'],
-					'amount'      => $this->currency->format($voucher['amount'], $order_info['currency_code'], $order_info['currency_value']),
-					'href'        => $this->url->link('sale/voucher/edit', 'user_token=' . $this->session->data['user_token'] . '&voucher_id=' . $voucher['voucher_id'], true)
 				);
 			}
 
@@ -1622,17 +1600,6 @@ class ControllerSaleOrder extends Controller {
 					);
 				}
 
-				$voucher_data = array();
-
-				$vouchers = $this->model_sale_order->getOrderVouchers($order_id);
-
-				foreach ($vouchers as $voucher) {
-					$voucher_data[] = array(
-						'description' => $voucher['description'],
-						'amount'      => $this->currency->format($voucher['amount'], $order_info['currency_code'], $order_info['currency_value'])
-					);
-				}
-
 				$total_data = array();
 
 				$totals = $this->model_sale_order->getOrderTotals($order_id);
@@ -1661,7 +1628,6 @@ class ControllerSaleOrder extends Controller {
 					'payment_address'  => $payment_address,
 					'payment_method'   => $order_info['payment_method'],
 					'product'          => $product_data,
-					'voucher'          => $voucher_data,
 					'total'            => $total_data,
 					'comment'          => nl2br($order_info['comment'])
 				);

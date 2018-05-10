@@ -18,22 +18,6 @@ class ModelCheckoutOrder extends Model {
 			}
 		}
 
-		// Gift Voucher
-		$this->load->model('extension/total/voucher');
-
-		// Vouchers
-		if (isset($data['vouchers'])) {
-			foreach ($data['vouchers'] as $voucher) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "order_voucher SET order_id = '" . (int)$order_id . "', description = '" . $this->db->escape($voucher['description']) . "', code = '" . $this->db->escape($voucher['code']) . "', from_name = '" . $this->db->escape($voucher['from_name']) . "', from_email = '" . $this->db->escape($voucher['from_email']) . "', to_name = '" . $this->db->escape($voucher['to_name']) . "', to_email = '" . $this->db->escape($voucher['to_email']) . "', voucher_theme_id = '" . (int)$voucher['voucher_theme_id'] . "', message = '" . $this->db->escape($voucher['message']) . "', amount = '" . (float)$voucher['amount'] . "'");
-
-				$order_voucher_id = $this->db->getLastId();
-
-				$voucher_id = $this->model_extension_total_voucher->addVoucher($order_id, $voucher);
-
-				$this->db->query("UPDATE " . DB_PREFIX . "order_voucher SET voucher_id = '" . (int)$voucher_id . "' WHERE order_voucher_id = '" . (int)$order_voucher_id . "'");
-			}
-		}
-
 		// Totals
 		if (isset($data['totals'])) {
 			foreach ($data['totals'] as $total) {
@@ -66,26 +50,6 @@ class ModelCheckoutOrder extends Model {
 			}
 		}
 
-		// Gift Voucher
-		$this->load->model('extension/total/voucher');
-
-		$this->model_extension_total_voucher->disableVoucher($order_id);
-
-		// Vouchers
-		$this->db->query("DELETE FROM " . DB_PREFIX . "order_voucher WHERE order_id = '" . (int)$order_id . "'");
-
-		if (isset($data['vouchers'])) {
-			foreach ($data['vouchers'] as $voucher) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "order_voucher SET order_id = '" . (int)$order_id . "', description = '" . $this->db->escape($voucher['description']) . "', code = '" . $this->db->escape($voucher['code']) . "', from_name = '" . $this->db->escape($voucher['from_name']) . "', from_email = '" . $this->db->escape($voucher['from_email']) . "', to_name = '" . $this->db->escape($voucher['to_name']) . "', to_email = '" . $this->db->escape($voucher['to_email']) . "', voucher_theme_id = '" . (int)$voucher['voucher_theme_id'] . "', message = '" . $this->db->escape($voucher['message']) . "', amount = '" . (float)$voucher['amount'] . "'");
-
-				$order_voucher_id = $this->db->getLastId();
-
-				$voucher_id = $this->model_extension_total_voucher->addVoucher($order_id, $voucher);
-
-				$this->db->query("UPDATE " . DB_PREFIX . "order_voucher SET voucher_id = '" . (int)$voucher_id . "' WHERE order_voucher_id = '" . (int)$order_voucher_id . "'");
-			}
-		}
-
 		// Totals
 		$this->db->query("DELETE FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "'");
 
@@ -103,15 +67,9 @@ class ModelCheckoutOrder extends Model {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int)$order_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_product` WHERE order_id = '" . (int)$order_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_option` WHERE order_id = '" . (int)$order_id . "'");
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_voucher` WHERE order_id = '" . (int)$order_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_history` WHERE order_id = '" . (int)$order_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "customer_transaction` WHERE order_id = '" . (int)$order_id . "'");
-
-		// Gift Voucher
-		$this->load->model('extension/total/voucher');
-
-		$this->model_extension_total_voucher->disableVoucher($order_id);
 	}
 
 	public function getOrder($order_id) {
@@ -248,12 +206,6 @@ class ModelCheckoutOrder extends Model {
 		return $query->rows;
 	}
 	
-	public function getOrderVouchers($order_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_voucher WHERE order_id = '" . (int)$order_id . "'");
-	
-		return $query->rows;
-	}
-	
 	public function getOrderTotals($order_id) {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
 		
@@ -299,17 +251,17 @@ class ModelCheckoutOrder extends Model {
 
 			// If current order status is not processing or complete but new status is processing or complete then commence completing the order
 			if (!in_array($order_info['order_status_id'], array_merge($this->config->get('config_processing_status'), $this->config->get('config_complete_status'))) && in_array($order_status_id, array_merge($this->config->get('config_processing_status'), $this->config->get('config_complete_status')))) {
-				// Redeem coupon, vouchers and reward points
+				// Redeem coupon and reward points
 				$order_totals = $this->getOrderTotals($order_id);
 
 				foreach ($order_totals as $order_total) {
 					$this->load->model('extension/total/' . $order_total['code']);
 
 					if (property_exists($this->{'model_extension_total_' . $order_total['code']}, 'confirm')) {
-						// Confirm coupon, vouchers and reward points
+						// Confirm coupon and reward points
 						$fraud_status_id = $this->{'model_extension_total_' . $order_total['code']}->confirm($order_info, $order_total);
 						
-						// If the balance on the coupon, vouchers and reward points is not enough to cover the transaction or has already been used then the fraud order status is returned.
+						// If the balance on the coupon and reward points is not enough to cover the transaction or has already been used then the fraud order status is returned.
 						if ($fraud_status_id) {
 							$order_status_id = $fraud_status_id;
 						}
@@ -344,7 +296,7 @@ class ModelCheckoutOrder extends Model {
 
 			$this->db->query("INSERT INTO " . DB_PREFIX . "order_history SET order_id = '" . (int)$order_id . "', order_status_id = '" . (int)$order_status_id . "', notify = '" . (int)$notify . "', comment = '" . $this->db->escape($comment) . "', date_added = NOW()");
 
-			// If old order status is the processing or complete status but new status is not then commence restock, and remove coupon, voucher and reward history
+			// If old order status is the processing or complete status but new status is not then commence restock, and remove coupon and reward history
 			if (in_array($order_info['order_status_id'], array_merge($this->config->get('config_processing_status'), $this->config->get('config_complete_status'))) && !in_array($order_status_id, array_merge($this->config->get('config_processing_status'), $this->config->get('config_complete_status')))) {
 				// Restock
 				$order_products = $this->getOrderProducts($order_id);
@@ -359,7 +311,7 @@ class ModelCheckoutOrder extends Model {
 					}
 				}
 
-				// Remove coupon, vouchers and reward points history
+				// Remove coupon and reward points history
 				$order_totals = $this->getOrderTotals($order_id);
 				
 				foreach ($order_totals as $order_total) {

@@ -20,9 +20,7 @@ class ControllerAccountLogin extends Controller {
 			unset($this->session->data['comment']);
 			unset($this->session->data['coupon']);
 			unset($this->session->data['reward']);
-			unset($this->session->data['voucher']);
-			unset($this->session->data['vouchers']);
-
+			
 			$customer_info = $this->model_account_customer->getCustomerByToken($this->request->get['token']);
 
 			if ($customer_info && $this->customer->login($customer_info['email'], '', true)) {
