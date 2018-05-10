@@ -27,13 +27,13 @@ class ControllerExtensionModuleFeatured extends Controller {
 					}
 
 					if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-						$price = $this->currency->format($this->tax->calculate($product_info['price'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+						$price = $this->currency->format($this->tax->calculate($product_info['price'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
 					} else {
 						$price = false;
 					}
 
 					if ((float)$product_info['special']) {
-						$special = $this->currency->format($this->tax->calculate($product_info['special'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+						$special = $this->currency->format($this->tax->calculate($product_info['special'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
 					} else {
 						$special = false;
 					}

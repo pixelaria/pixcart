@@ -273,13 +273,13 @@ class ControllerProductProduct extends Controller {
 			}
 
 			if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-				$data['price'] = $this->currency->format($this->tax->calculate($product_info['price'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+				$data['price'] = $this->currency->format($product_info['price'], $this->session->data['currency']);
 			} else {
 				$data['price'] = false;
 			}
 
 			if ((float)$product_info['special']) {
-				$data['special'] = $this->currency->format($this->tax->calculate($product_info['special'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+				$data['special'] = $this->currency->format($product_info['special'], $this->session->data['currency']);
 			} else {
 				$data['special'] = false;
 			}
@@ -297,7 +297,7 @@ class ControllerProductProduct extends Controller {
 			foreach ($discounts as $discount) {
 				$data['discounts'][] = array(
 					'quantity' => $discount['quantity'],
-					'price'    => $this->currency->format($this->tax->calculate($discount['price'], 0, $this->config->get('config_tax')), $this->session->data['currency'])
+					'price'    => $this->currency->format($discount['price'], $this->session->data['currency'])
 				);
 			}
 
@@ -309,7 +309,7 @@ class ControllerProductProduct extends Controller {
 				foreach ($option['product_option_value'] as $option_value) {
 					if (!$option_value['subtract'] || ($option_value['quantity'] > 0)) {
 						if ((($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) && (float)$option_value['price']) {
-							$price = $this->currency->format($this->tax->calculate($option_value['price'], 0, $this->config->get('config_tax') ? 'P' : false), $this->session->data['currency']);
+							$price = $this->currency->format($option_value['price'], $this->session->data['currency']);
 						} else {
 							$price = false;
 						}
@@ -376,21 +376,15 @@ class ControllerProductProduct extends Controller {
 				}
 
 				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-					$price = $this->currency->format($this->tax->calculate($result['price'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+					$price = $this->currency->format($result['price'], $this->session->data['currency']);
 				} else {
 					$price = false;
 				}
 
 				if ((float)$result['special']) {
-					$special = $this->currency->format($this->tax->calculate($result['special'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+					$special = $this->currency->format($result['special'], $this->session->data['currency']);
 				} else {
 					$special = false;
-				}
-
-				if ($this->config->get('config_tax')) {
-					$tax = $this->currency->format((float)$result['special'] ? $result['special'] : $result['price'], $this->session->data['currency']);
-				} else {
-					$tax = false;
 				}
 
 				if ($this->config->get('config_review_status')) {
@@ -406,7 +400,6 @@ class ControllerProductProduct extends Controller {
 					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 					'price'       => $price,
 					'special'     => $special,
-					'tax'         => $tax,
 					'rating'      => $rating,
 					'href'        => $this->url->link('product/product', 'product_id=' . $result['product_id'])
 				);
@@ -424,8 +417,6 @@ class ControllerProductProduct extends Controller {
 					);
 				}
 			}
-
-			$data['recurrings'] = $this->model_catalog_product->getProfiles($this->request->get['product_id']);
 
 			$this->model_catalog_product->updateViewed($this->request->get['product_id']);
 			
@@ -582,67 +573,6 @@ class ControllerProductProduct extends Controller {
 				$this->model_catalog_review->addReview($this->request->get['product_id'], $this->request->post);
 
 				$json['success'] = $this->language->get('text_success');
-			}
-		}
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
-	public function getRecurringDescription() {
-		$this->load->language('product/product');
-		$this->load->model('catalog/product');
-
-		if (isset($this->request->post['product_id'])) {
-			$product_id = $this->request->post['product_id'];
-		} else {
-			$product_id = 0;
-		}
-
-		if (isset($this->request->post['recurring_id'])) {
-			$recurring_id = $this->request->post['recurring_id'];
-		} else {
-			$recurring_id = 0;
-		}
-
-		if (isset($this->request->post['quantity'])) {
-			$quantity = $this->request->post['quantity'];
-		} else {
-			$quantity = 1;
-		}
-
-		$product_info = $this->model_catalog_product->getProduct($product_id);
-		
-		$recurring_info = $this->model_catalog_product->getProfile($product_id, $recurring_id);
-
-		$json = array();
-
-		if ($product_info && $recurring_info) {
-			if (!$json) {
-				$frequencies = array(
-					'day'        => $this->language->get('text_day'),
-					'week'       => $this->language->get('text_week'),
-					'semi_month' => $this->language->get('text_semi_month'),
-					'month'      => $this->language->get('text_month'),
-					'year'       => $this->language->get('text_year'),
-				);
-
-				if ($recurring_info['trial_status'] == 1) {
-					$price = $this->currency->format($this->tax->calculate($recurring_info['trial_price'] * $quantity, 0, $this->config->get('config_tax')), $this->session->data['currency']);
-					$trial_text = sprintf($this->language->get('text_trial_description'), $price, $recurring_info['trial_cycle'], $frequencies[$recurring_info['trial_frequency']], $recurring_info['trial_duration']) . ' ';
-				} else {
-					$trial_text = '';
-				}
-
-				$price = $this->currency->format($this->tax->calculate($recurring_info['price'] * $quantity, 0, $this->config->get('config_tax')), $this->session->data['currency']);
-
-				if ($recurring_info['duration']) {
-					$text = $trial_text . sprintf($this->language->get('text_payment_description'), $price, $recurring_info['cycle'], $frequencies[$recurring_info['frequency']], $recurring_info['duration']);
-				} else {
-					$text = $trial_text . sprintf($this->language->get('text_payment_cancel'), $price, $recurring_info['cycle'], $frequencies[$recurring_info['frequency']], $recurring_info['duration']);
-				}
-
-				$json['success'] = $text;
 			}
 		}
 
