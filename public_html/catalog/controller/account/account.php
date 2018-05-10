@@ -65,7 +65,6 @@ class ControllerAccountAccount extends Controller {
 		$data['return'] = $this->url->link('account/return', '', true);
 		$data['transaction'] = $this->url->link('account/transaction', '', true);
 		$data['newsletter'] = $this->url->link('account/newsletter', '', true);
-		$data['recurring'] = $this->url->link('account/recurring', '', true);
 		
 		$this->load->model('account/customer');
 		
