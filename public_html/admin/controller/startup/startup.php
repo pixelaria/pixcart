@@ -33,19 +33,6 @@ class ControllerStartupStartup extends Controller {
 		// Currency
 		$this->registry->set('currency', new Cart\Currency($this->registry));
 	
-		// Tax
-		$this->registry->set('tax', new Cart\Tax($this->registry));
-		
-		if ($this->config->get('config_tax_default') == 'shipping') {
-			$this->tax->setShippingAddress($this->config->get('config_country_id'), $this->config->get('config_zone_id'));
-		}
-
-		if ($this->config->get('config_tax_default') == 'payment') {
-			$this->tax->setPaymentAddress($this->config->get('config_country_id'), $this->config->get('config_zone_id'));
-		}
-
-		$this->tax->setStoreAddress($this->config->get('config_country_id'), $this->config->get('config_zone_id'));
-
 		// Weight
 		$this->registry->set('weight', new Cart\Weight($this->registry));
 		
