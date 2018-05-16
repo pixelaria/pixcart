@@ -170,21 +170,15 @@ class ControllerProductCategory extends Controller {
 				}
 
 				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-					$price = $this->currency->format($this->tax->calculate($result['price'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+					$price = $this->currency->format($result['price'], $this->session->data['currency']);
 				} else {
 					$price = false;
 				}
 
 				if ((float)$result['special']) {
-					$special = $this->currency->format($this->tax->calculate($result['special'], 0, $this->config->get('config_tax')), $this->session->data['currency']);
+					$special = $this->currency->format($result['special'], $this->session->data['currency']);
 				} else {
 					$special = false;
-				}
-
-				if ($this->config->get('config_tax')) {
-					$tax = $this->currency->format((float)$result['special'] ? $result['special'] : $result['price'], $this->session->data['currency']);
-				} else {
-					$tax = false;
 				}
 
 				if ($this->config->get('config_review_status')) {
