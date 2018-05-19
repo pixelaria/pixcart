@@ -1,11 +1,11 @@
 <?php
 class ModelDesignSeoUrl extends Model {
 	public function addSeoUrl($data) {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "seo_url` SET store_id = '" . (int)$data['store_id'] . "', language_id = '" . (int)$data['language_id'] . "', query = '" . $this->db->escape($data['query']) . "', keyword = '" . $this->db->escape($data['keyword']) . "'");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "seo_url` SET query = '" . $this->db->escape($data['query']) . "', keyword = '" . $this->db->escape($data['keyword']) . "'");
 	}
 
 	public function editSeoUrl($seo_url_id, $data) {
-		$this->db->query("UPDATE `" . DB_PREFIX . "seo_url` SET store_id = '" . (int)$data['store_id'] . "', language_id = '" . (int)$data['language_id'] . "', query = '" . $this->db->escape($data['query']) . "', keyword = '" . $this->db->escape($data['keyword']) . "' WHERE seo_url_id = '" . (int)$seo_url_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "seo_url` SET query = '" . $this->db->escape($data['query']) . "', keyword = '" . $this->db->escape($data['keyword']) . "' WHERE seo_url_id = '" . (int)$seo_url_id . "'");
 	}
 
 	public function deleteSeoUrl($seo_url_id) {
@@ -19,7 +19,7 @@ class ModelDesignSeoUrl extends Model {
 	}
 
 	public function getSeoUrls($data = array()) {
-		$sql = "SELECT *, (SELECT `name` FROM `" . DB_PREFIX . "store` s WHERE s.store_id = su.store_id) AS store, (SELECT `name` FROM `" . DB_PREFIX . "language` l WHERE l.language_id = su.language_id) AS language FROM `" . DB_PREFIX . "seo_url` su";
+		$sql = "SELECT * FROM `" . DB_PREFIX . "seo_url` su";
 
 		$implode = array();
 
@@ -31,14 +31,6 @@ class ModelDesignSeoUrl extends Model {
 			$implode[] = "`keyword` LIKE '" . $this->db->escape($data['filter_keyword']) . "'";
 		}
 		
-		if (isset($data['filter_store_id']) && $data['filter_store_id'] !== '') {
-			$implode[] = "`store_id` = '" . (int)$data['filter_store_id'] . "'";
-		}
-				
-		if (!empty($data['filter_language_id']) && $data['filter_language_id'] !== '') {
-			$implode[] = "`language_id` = '" . (int)$data['filter_language_id'] . "'";
-		}
-		
 		if ($implode) {
 			$sql .= " WHERE " . implode(" AND ", $implode);
 		}	
@@ -46,8 +38,6 @@ class ModelDesignSeoUrl extends Model {
 		$sort_data = array(
 			'query',
 			'keyword',
-			'language_id',
-			'store_id'
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
@@ -92,14 +82,6 @@ class ModelDesignSeoUrl extends Model {
 			$implode[] = "keyword LIKE '" . $this->db->escape($data['filter_keyword']) . "'";
 		}
 		
-		if (!empty($data['filter_store_id']) && $data['filter_store_id'] !== '') {
-			$implode[] = "store_id = '" . (int)$data['filter_store_id'] . "'";
-		}
-				
-		if (!empty($data['filter_language_id']) && $data['filter_language_id'] !== '') {
-			$implode[] = "language_id = '" . (int)$data['filter_language_id'] . "'";
-		}
-		
 		if ($implode) {
 			$sql .= " WHERE " . implode(" AND ", $implode);
 		}		
@@ -120,4 +102,10 @@ class ModelDesignSeoUrl extends Model {
 
 		return $query->rows;
 	}	
+
+	public function getSeoUrlByKeyword($keyword) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE keyword = '" . $this->db->escape($keyword) . "'");
+
+		return $query->row;
+	}
 }

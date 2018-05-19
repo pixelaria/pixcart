@@ -28,7 +28,6 @@
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
             <li><a href="#tab-data" data-toggle="tab">{{ tab_data }}</a></li>
-            <li><a href="#tab-seo" data-toggle="tab">{{ tab_seo }}</a></li>
             <li><a href="#tab-design" data-toggle="tab">{{ tab_design }}</a></li>
           </ul>
           <div class="tab-content">
@@ -93,39 +92,6 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-filter"><span data-toggle="tooltip" title="{{ help_filter }}">{{ entry_filter }}</span></label>
-                <div class="col-sm-10">
-                  <input type="text" name="filter" value="" placeholder="{{ entry_filter }}" id="input-filter" class="form-control" />
-                  <div id="category-filter" class="well well-sm" style="height: 150px; overflow: auto;">
-                    {% for category_filter in category_filters %}
-                    <div id="category-filter{{ category_filter.filter_id }}"><i class="fa fa-minus-circle"></i> {{ category_filter.name }}
-                      <input type="hidden" name="category_filter[]" value="{{ category_filter.filter_id }}" />
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">{{ entry_store }}</label>
-                <div class="col-sm-10">
-                  <div class="well well-sm" style="height: 150px; overflow: auto;">
-                    {% for store in stores %}
-                    <div class="checkbox">
-                      <label>
-                        {% if store.store_id in category_store %}
-                        <input type="checkbox" name="category_store[]" value="{{ store.store_id }}" checked="checked" />
-                        {{ store.name }}
-                        {% else %}
-                        <input type="checkbox" name="category_store[]" value="{{ store.store_id }}" />
-                        {{ store.name }}
-                        {% endif %}
-                      </label>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
                 <label class="col-sm-2 control-label">{{ entry_image }}</label>
                 <div class="col-sm-10"><a href="" id="thumb-image" data-toggle="image" class="img-thumbnail"><img src="{{ thumb }}" alt="" title="" data-placeholder="{{ placeholder }}" /></a>
                   <input type="hidden" name="image" value="{{ image }}" id="input-image" />
@@ -171,64 +137,28 @@
                   </select>
                 </div>
               </div>
-            </div>
-            <div class="tab-pane" id="tab-seo">
-              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_keyword }}</div>
-              <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <td class="text-left">{{ entry_store }}</td>
-                      <td class="text-left">{{ entry_keyword }}</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {% for store in stores %}
-                  <tr>
-                    <td class="text-left">{{ store.name }}</td>
-                    <td class="text-left">{% for language in languages %}
-                      <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
-                        <input type="text" name="category_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if category_seo_url[store.store_id][language.language_id] %}{{ category_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" class="form-control" />
-                      </div>
-                      {% if error_keyword[store.store_id][language.language_id] %}
-                      <div class="text-danger">{{ error_keyword[store.store_id][language.language_id] }}</div>
-                      {% endif %}
-                      {% endfor %}</td>
-                  </tr>
-                  {% endfor %}
-                  </tbody>
-                  
-                </table>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-keyword"><span data-toggle="tooltip" title="" data-original-title="Должно быть уникальным на всю систему.">{{entry_keyword}}</span></label>
+                <div class="col-sm-10">
+                  <input name="keyword" value="{{ keyword }}" placeholder="{{entry_keyword}}" id="input-keyword" class="form-control" type="text">
+                </div>
               </div>
-            </div>            
+            </div>
             <div class="tab-pane" id="tab-design">
-              <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <td class="text-left">{{ entry_store }}</td>
-                      <td class="text-left">{{ entry_layout }}</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                    {% for store in stores %}
-                    <tr>
-                      <td class="text-left">{{ store.name }}</td>
-                      <td class="text-left"><select name="category_layout[{{ store.store_id }}]" class="form-control">
-                          <option value=""></option>
-                          {% for layout in layouts %}
-                          {% if category_layout[store.store_id] and category_layout[store.store_id] == layout.layout_id %}
-                          <option value="{{ layout.layout_id }}" selected="selected">{{ layout.name }}</option>
-                          {% else %}
-                          <option value="{{ layout.layout_id }}">{{ layout.name }}</option>
-                          {% endif %}
-                          {% endfor %}
-                        </select></td>
-                    </tr>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-keyword"><span data-toggle="tooltip" title="">{{entry_layout}}</span></label>
+                <div class="col-sm-10">
+                  <select name="category_layout" class="form-control">
+                    <option value=""></option>
+                    {% for layout in layouts %}
+                    {% if category_layout == layout.layout_id %}
+                    <option value="{{ layout.layout_id }}" selected="selected">{{ layout.name }}</option>
+                    {% else %}
+                    <option value="{{ layout.layout_id }}">{{ layout.name }}</option>
+                    {% endif %}
                     {% endfor %}
-                  </tbody>
-                </table>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -272,35 +202,6 @@ $('input[name=\'path\']').autocomplete({
 		$('input[name=\'path\']').val(item['label']);
 		$('input[name=\'parent_id\']').val(item['value']);
 	}
-});
-//--></script>
-  <script type="text/javascript"><!--
-$('input[name=\'filter\']').autocomplete({
-	'source': function(request, response) {
-		$.ajax({
-			url: 'index.php?route=catalog/filter/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
-			dataType: 'json',
-			success: function(json) {
-				response($.map(json, function(item) {
-					return {
-						label: item['name'],
-						value: item['filter_id']
-					}
-				}));
-			}
-		});
-	},
-	'select': function(item) {
-		$('input[name=\'filter\']').val('');
-
-		$('#category-filter' + item['value']).remove();
-
-		$('#category-filter').append('<div id="category-filter' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="category_filter[]" value="' + item['value'] + '" /></div>');
-	}
-});
-
-$('#category-filter').delegate('.fa-minus-circle', 'click', function() {
-	$(this).parent().remove();
 });
 //--></script>
   <script type="text/javascript"><!--

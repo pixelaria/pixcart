@@ -13,12 +13,6 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', description = '" . $this->db->escape($value['description']) . "', tag = '" . $this->db->escape($value['tag']) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
 		}
 
-		if (isset($data['product_store'])) {
-			foreach ($data['product_store'] as $store_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_store SET product_id = '" . (int)$product_id . "', store_id = '" . (int)$store_id . "'");
-			}
-		}
-
 		if (isset($data['product_attribute'])) {
 			foreach ($data['product_attribute'] as $product_attribute) {
 				if ($product_attribute['attribute_id']) {
@@ -82,12 +76,6 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
-		if (isset($data['product_filter'])) {
-			foreach ($data['product_filter'] as $filter_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_filter SET product_id = '" . (int)$product_id . "', filter_id = '" . (int)$filter_id . "'");
-			}
-		}
-
 		if (isset($data['product_related'])) {
 			foreach ($data['product_related'] as $related_id) {
 				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "' AND related_id = '" . (int)$related_id . "'");
@@ -139,14 +127,6 @@ class ModelCatalogProduct extends Model {
 
 		foreach ($data['product_description'] as $language_id => $value) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', description = '" . $this->db->escape($value['description']) . "', tag = '" . $this->db->escape($value['tag']) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
-		}
-
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
-
-		if (isset($data['product_store'])) {
-			foreach ($data['product_store'] as $store_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_store SET product_id = '" . (int)$product_id . "', store_id = '" . (int)$store_id . "'");
-			}
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int)$product_id . "'");
@@ -226,14 +206,6 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
-
-		if (isset($data['product_filter'])) {
-			foreach ($data['product_filter'] as $filter_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_filter SET product_id = '" . (int)$product_id . "', filter_id = '" . (int)$filter_id . "'");
-			}
-		}
-
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE related_id = '" . (int)$product_id . "'");
 
@@ -295,7 +267,6 @@ class ModelCatalogProduct extends Model {
 			$data['product_attribute'] = $this->getProductAttributes($product_id);
 			$data['product_description'] = $this->getProductDescriptions($product_id);
 			$data['product_discount'] = $this->getProductDiscounts($product_id);
-			$data['product_filter'] = $this->getProductFilters($product_id);
 			$data['product_image'] = $this->getProductImages($product_id);
 			$data['product_option'] = $this->getProductOptions($product_id);
 			$data['product_related'] = $this->getProductRelated($product_id);
@@ -304,7 +275,6 @@ class ModelCatalogProduct extends Model {
 			$data['product_category'] = $this->getProductCategories($product_id);
 			$data['product_download'] = $this->getProductDownloads($product_id);
 			$data['product_layout'] = $this->getProductLayouts($product_id);
-			$data['product_store'] = $this->getProductStores($product_id);
 			
 			$this->addProduct($data);
 		}
@@ -315,7 +285,6 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_description WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_image WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
@@ -326,7 +295,6 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_download WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_layout WHERE product_id = '" . (int)$product_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url WHERE query = 'product_id=" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "coupon_product WHERE product_id = '" . (int)$product_id . "'");
@@ -440,18 +408,6 @@ class ModelCatalogProduct extends Model {
 		return $product_category_data;
 	}
 
-	public function getProductFilters($product_id) {
-		$product_filter_data = array();
-
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
-
-		foreach ($query->rows as $result) {
-			$product_filter_data[] = $result['filter_id'];
-		}
-
-		return $product_filter_data;
-	}
-
 	public function getProductAttributes($product_id) {
 		$product_attribute_data = array();
 
@@ -562,18 +518,6 @@ class ModelCatalogProduct extends Model {
 		return $product_download_data;
 	}
 
-	public function getProductStores($product_id) {
-		$product_store_data = array();
-
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
-
-		foreach ($query->rows as $result) {
-			$product_store_data[] = $result['store_id'];
-		}
-
-		return $product_store_data;
-	}
-	
 	public function getProductSeoUrls($product_id) {
 		$product_seo_url_data = array();
 		
