@@ -775,30 +775,6 @@ class ControllerCatalogProduct extends Controller {
 			}
 		}
 
-		// Filters
-		$this->load->model('catalog/filter');
-
-		if (isset($this->request->post['product_filter'])) {
-			$filters = $this->request->post['product_filter'];
-		} elseif (isset($this->request->get['product_id'])) {
-			$filters = $this->model_catalog_product->getProductFilters($this->request->get['product_id']);
-		} else {
-			$filters = array();
-		}
-
-		$data['product_filters'] = array();
-
-		foreach ($filters as $filter_id) {
-			$filter_info = $this->model_catalog_filter->getFilter($filter_id);
-
-			if ($filter_info) {
-				$data['product_filters'][] = array(
-					'filter_id' => $filter_info['filter_id'],
-					'name'      => $filter_info['group'] . ' &gt; ' . $filter_info['name']
-				);
-			}
-		}
-
 		// Attributes
 		$this->load->model('catalog/attribute');
 
@@ -1014,12 +990,12 @@ class ControllerCatalogProduct extends Controller {
 			}
 		}
 
-		if (isset($this->request->post['product_seo_url'])) {
-			$data['product_seo_url'] = $this->request->post['product_seo_url'];
-		} elseif (isset($this->request->get['product_id'])) {
-			$data['product_seo_url'] = $this->model_catalog_product->getProductSeoUrls($this->request->get['product_id']);
+		if (isset($this->request->post['keyword'])) {
+			$data['keyword'] = $this->request->post['keyword'];
+		} elseif (!empty($product_info)) {
+			$data['keyword'] = $product_info['keyword'];
 		} else {
-			$data['product_seo_url'] = array();
+			$data['keyword'] = '';
 		}
 
 		if (isset($this->request->post['product_layout'])) {
