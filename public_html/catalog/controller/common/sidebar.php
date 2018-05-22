@@ -23,6 +23,26 @@ class ControllerCommonSidebar extends Controller {
 			}
 		}
 
+		// Static links
+		$data['cart'] = $this->url->link('checkout/cart');
+		$data['contact'] = $this->url->link('information/contact');
+		$data['account'] = $this->url->link('account/account', '', true);
+		$data['special'] = $this->url->link('product/search');
+
+		// Dynamic links
+		$this->load->model('catalog/information');
+
+		$data['informations'] = array();
+
+		$sidebar_informations = $this->model_catalog_information->getSidebarInformations();
+		
+		foreach ($sidebar_informations as $information) {
+			$data['informations'][] = array(
+				'title' => $information['title'],
+				'href'  => $this->url->link('information/information', 'information_id=' . $information['information_id'])
+			);
+		}
+
 		return $this->load->view('common/sidebar', $data);
 	}
 }
