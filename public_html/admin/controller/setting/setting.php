@@ -235,6 +235,12 @@ class ControllerSettingSetting extends Controller {
 			$data['config_email'] = $this->config->get('config_email');
 		}
 
+		if (isset($this->request->post['config_contacts_email'])) {
+			$data['config_contacts_email'] = $this->request->post['config_contacts_email'];
+		} else {
+			$data['config_contacts_email'] = $this->config->get('config_contacts_email');
+		}
+
 		if (isset($this->request->post['config_telephone'])) {
 			$data['config_telephone'] = $this->request->post['config_telephone'];
 		} else {
@@ -361,6 +367,12 @@ class ControllerSettingSetting extends Controller {
 			$data['config_limit_admin'] = $this->request->post['config_limit_admin'];
 		} else {
 			$data['config_limit_admin'] = $this->config->get('config_limit_admin');
+		}
+
+		if (isset($this->request->post['config_main_category'])) {
+			$data['config_main_category'] = $this->request->post['config_main_category'];
+		} else {
+			$data['config_main_category'] = $this->config->get('config_main_category');
 		}
 
 		if (isset($this->request->post['config_product_count'])) {

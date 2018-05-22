@@ -10,7 +10,7 @@ class ControllerCommonMenu extends Controller {
 
 		$data['categories'] = array();
 
-		$categories = $this->model_catalog_category->getCategories(0);
+		$categories = $this->model_catalog_category->getCategories($this->config->get('config_main_category'));
 
 		foreach ($categories as $category) {
 			if ($category['top']) {

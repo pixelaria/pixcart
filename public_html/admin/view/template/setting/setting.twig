@@ -141,6 +141,17 @@
                   <div class="text-danger">{{ error_email }}</div>
                   {% endif %} </div>
               </div>
+              
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-contacts-email">{{ entry_contacts_email }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="config_contacts_email" value="{{ config_contacts_email }}" placeholder="{{ entry_contacts_email }}" id="input-contacts-email" class="form-control" />
+                  {% if error_contacts_email %}
+                      <div class="text-danger">{{ error_contacts_email }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-telephone">{{ entry_telephone }}</label>
                 <div class="col-sm-10">
@@ -367,6 +378,14 @@
                     <div class="text-danger">{{ error_limit_admin }}</div>
                     {% endif %} </div>
                 </div>
+
+                <div class="form-group required">
+                  <label class="col-sm-2 control-label" for="input-main-category"><span data-toggle="tooltip" title="{{ help_main_category }}">{{ entry_main_category }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="text" name="config_main_category" value="{{ config_main_category }}" placeholder="{{ entry_main_category }}" id="input-main-category" class="form-control" />
+                  </div>
+                </div>
+
               </fieldset>
               <fieldset>
                 <legend>{{ text_review }}</legend>
