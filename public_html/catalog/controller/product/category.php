@@ -42,8 +42,9 @@ class ControllerProductCategory extends Controller {
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text'  => 'Главная',
+			'href'  => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		if (isset($this->request->get['path'])) {
@@ -101,7 +102,7 @@ class ControllerProductCategory extends Controller {
 			// Set the last category breadcrumb
 			$data['breadcrumbs'][] = array(
 				'text' => $category_info['name'],
-				'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'])
+				'href' => false
 			);
 
 			if ($category_info['image']) {

@@ -431,19 +431,7 @@ class ControllerCatalogCategory extends Controller {
 		} else {
 			$data['keyword'] = '';
 		}
-				
-		if (isset($this->request->post['category_layout'])) {
-			$data['category_layout'] = $this->request->post['category_layout'];
-		} elseif (isset($this->request->get['category_id'])) {
-			$data['category_layout'] = $category_info['category_layout'];
-		} else {
-			$data['category_layout'] = array();
-		}
-
-		$this->load->model('design/layout');
-
-		$data['layouts'] = $this->model_design_layout->getLayouts();
-
+		
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -494,8 +482,8 @@ class ControllerCatalogCategory extends Controller {
 		
 		if ($this->error && !isset($this->error['warning'])) {
 			$this->error['warning'] = $this->language->get('error_warning');
-		}
-		
+		}	
+
 		return !$this->error;
 	}
 
