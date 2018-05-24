@@ -359,7 +359,7 @@ class ControllerCatalogCategory extends Controller {
 		if (isset($this->request->post['category_description'])) {
 			$data['category_description'] = $this->request->post['category_description'];
 		} elseif (isset($this->request->get['category_id'])) {
-			$data['category_description'] = $this->model_catalog_category->getCategoryDescriptions($this->request->get['category_id']);
+			$data['category_description'] = $this->model_catalog_category->getCategoryDescription($this->request->get['category_id']);
 		} else {
 			$data['category_description'] = array();
 		}
@@ -444,15 +444,16 @@ class ControllerCatalogCategory extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['category_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
-				$this->error['name'][$language_id] = $this->language->get('error_name');
-			}
-
-			if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
-				$this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
-			}
+		$value = $this->request->post['category_description'];
+		
+		if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
+			$this->error['name'] = $this->language->get('error_name');
 		}
+
+		if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
+			$this->error['meta_title'] = $this->language->get('error_meta_title');
+		}
+		
 
 		if (isset($this->request->get['category_id']) && $this->request->post['parent_id']) {
 			$results = $this->model_catalog_category->getCategoryPath($this->request->post['parent_id']);

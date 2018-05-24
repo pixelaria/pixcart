@@ -5,10 +5,11 @@ class ModelCatalogAttributeGroup extends Model {
 
 		$attribute_group_id = $this->db->getLastId();
 
-		foreach ($data['attribute_group_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_group_description SET attribute_group_id = '" . (int)$attribute_group_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+		if ($data['attribute_group_description']) {
+			$value = $data['attribute_group_description'];
+			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_group_description SET attribute_group_id = '" . (int)$attribute_group_id . "', name = '" . $this->db->escape($value['name']) . "'");
 		}
-
+		
 		return $attribute_group_id;
 	}
 
@@ -17,8 +18,9 @@ class ModelCatalogAttributeGroup extends Model {
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "attribute_group_description WHERE attribute_group_id = '" . (int)$attribute_group_id . "'");
 
-		foreach ($data['attribute_group_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_group_description SET attribute_group_id = '" . (int)$attribute_group_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+		if ($data['attribute_group_description']) {
+			$value = $data['attribute_group_description'];
+			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_group_description SET attribute_group_id = '" . (int)$attribute_group_id . "', name = '" . $this->db->escape($value['name']) . "'");
 		}
 	}
 
@@ -34,7 +36,7 @@ class ModelCatalogAttributeGroup extends Model {
 	}
 
 	public function getAttributeGroups($data = array()) {
-		$sql = "SELECT * FROM " . DB_PREFIX . "attribute_group ag LEFT JOIN " . DB_PREFIX . "attribute_group_description agd ON (ag.attribute_group_id = agd.attribute_group_id) WHERE agd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+		$sql = "SELECT * FROM " . DB_PREFIX . "attribute_group ag LEFT JOIN " . DB_PREFIX . "attribute_group_description agd ON (ag.attribute_group_id = agd.attribute_group_id)";
 
 		$sort_data = array(
 			'agd.name',
@@ -70,16 +72,17 @@ class ModelCatalogAttributeGroup extends Model {
 		return $query->rows;
 	}
 
-	public function getAttributeGroupDescriptions($attribute_group_id) {
+	public function getAttributeGroupDescription($attribute_group_id) {
 		$attribute_group_data = array();
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_group_description WHERE attribute_group_id = '" . (int)$attribute_group_id . "'");
 
-		foreach ($query->rows as $result) {
-			$attribute_group_data[$result['language_id']] = array('name' => $result['name']);
+		if ($query->num_rows){
+			$attribute_group_data =array('name' => $query->row['name']);	
 		}
+		
 
-		return $attribute_group_data;
+		return $attribute_group_data->row;
 	}
 
 	public function getTotalAttributeGroups() {

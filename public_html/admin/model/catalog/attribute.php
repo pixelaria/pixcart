@@ -5,10 +5,10 @@ class ModelCatalogAttribute extends Model {
 
 		$attribute_id = $this->db->getLastId();
 
-		foreach ($data['attribute_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_description SET attribute_id = '" . (int)$attribute_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+		if ($data['attribute_description']) {
+			$value = $data['attribute_description'];
+			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_description SET attribute_id = '" . (int)$attribute_id . "', name = '" . $this->db->escape($value['name']) . "'");
 		}
-
 		return $attribute_id;
 	}
 
@@ -17,8 +17,9 @@ class ModelCatalogAttribute extends Model {
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "'");
 
-		foreach ($data['attribute_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_description SET attribute_id = '" . (int)$attribute_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+		if ($data['attribute_description']) {
+			$value = $data['attribute_description'];
+			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_description SET attribute_id = '" . (int)$attribute_id . "', name = '" . $this->db->escape($value['name']) . "'");
 		}
 	}
 
@@ -28,13 +29,13 @@ class ModelCatalogAttribute extends Model {
 	}
 
 	public function getAttribute($attribute_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE a.attribute_id = '" . (int)$attribute_id . "' AND ad.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE a.attribute_id = '" . (int)$attribute_id . "'");
 
 		return $query->row;
 	}
 
 	public function getAttributes($data = array()) {
-		$sql = "SELECT *, (SELECT agd.name FROM " . DB_PREFIX . "attribute_group_description agd WHERE agd.attribute_group_id = a.attribute_group_id AND agd.language_id = '" . (int)$this->config->get('config_language_id') . "') AS attribute_group FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE ad.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+		$sql = "SELECT *, (SELECT agd.name FROM " . DB_PREFIX . "attribute_group_description agd WHERE agd.attribute_group_id = a.attribute_group_id) AS attribute_group FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE 1";
 
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND ad.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
@@ -79,13 +80,13 @@ class ModelCatalogAttribute extends Model {
 		return $query->rows;
 	}
 
-	public function getAttributeDescriptions($attribute_id) {
+	public function getAttributeDescription($attribute_id) {
 		$attribute_data = array();
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "'");
 
-		foreach ($query->rows as $result) {
-			$attribute_data[$result['language_id']] = array('name' => $result['name']);
+		if ($query->num_rows) {
+				$attribute_data = array('name' => $query->row['name']);
 		}
 
 		return $attribute_data;

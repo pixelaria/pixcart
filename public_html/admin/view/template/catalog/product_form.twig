@@ -36,66 +36,60 @@
             <li><a href="#tab-special" data-toggle="tab">{{ tab_special }}</a></li>
           </ul>
           <div class="tab-content">
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-name2">{{ entry_name }}</label>
+              <div class="col-sm-10">
+                <input type="text" name="product_description[name]" value="{{ product_description ? product_description.name }}" placeholder="{{ entry_name }}" id="input-name2" class="form-control" />
+                {% if error_name %}
+                <div class="text-danger">{{ error_name }}</div>
+                {% endif %} </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-keyword"><span data-toggle="tooltip" title="" data-original-title="Должно быть уникальным на всю систему.">{{entry_keyword}}</span></label>
+              <div class="col-sm-10">
+                <input name="keyword" value="{{ keyword }}" placeholder="{{entry_keyword}}" id="input-keyword" class="form-control" type="text">
+                {% if error_keyword %}
+                <div class="text-danger">{{ error_keyword }}</div>
+                {% endif %} 
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="category" value="" placeholder="{{ entry_category }}" id="input-category" class="form-control" />
+                <div id="product-category" class="well well-sm" style="height: 150px; overflow: auto;"> {% for product_category in product_categories %}
+                  <div id="product-category{{ product_category.category_id }}"><i class="fa fa-minus-circle"></i> {{ product_category.name }}
+                    <input type="hidden" name="product_category[]" value="{{ product_category.category_id }}" />
+                  </div>
+                  {% endfor %}</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-manufacturer"><span data-toggle="tooltip" title="{{ help_manufacturer }}">{{ entry_manufacturer }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="manufacturer" value="{{ manufacturer }}" placeholder="{{ entry_manufacturer }}" id="input-manufacturer" class="form-control" />
+                <input type="hidden" name="manufacturer_id" value="{{ manufacturer_id }}" />
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-price">{{ entry_price }}</label>
+              <div class="col-sm-10">
+                <input type="text" name="price" value="{{ price }}" placeholder="{{ entry_price }}" id="input-price" class="form-control" />
+              </div>
+            </div>
             <div class="tab-pane active" id="tab-general">
-              <div class="tab-content">
-                <div class="tab-pane active" id="language2">
-                  <div class="form-group required">
-                    <label class="col-sm-2 control-label" for="input-name2">{{ entry_name }}</label>
-                    <div class="col-sm-10">
-                      <input type="text" name="product_description[2][name]" value="{{ product_description[2] ? product_description[2].name }}" placeholder="{{ entry_name }}" id="input-name2" class="form-control" />
-                      {% if error_name[2] %}
-                      <div class="text-danger">{{ error_name[2] }}</div>
-                      {% endif %} </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-keyword"><span data-toggle="tooltip" title="" data-original-title="Должно быть уникальным на всю систему.">{{entry_keyword}}</span></label>
-                    <div class="col-sm-10">
-                      <input name="keyword" value="{{ keyword }}" placeholder="{{entry_keyword}}" id="input-keyword" class="form-control" type="text">
-                      {% if error_keyword %}
-                      <div class="text-danger">{{ error_keyword }}</div>
-                      {% endif %} </div>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>
-                    <div class="col-sm-10">
-                      <input type="text" name="category" value="" placeholder="{{ entry_category }}" id="input-category" class="form-control" />
-                      <div id="product-category" class="well well-sm" style="height: 150px; overflow: auto;"> {% for product_category in product_categories %}
-                        <div id="product-category{{ product_category.category_id }}"><i class="fa fa-minus-circle"></i> {{ product_category.name }}
-                          <input type="hidden" name="product_category[]" value="{{ product_category.category_id }}" />
-                        </div>
-                        {% endfor %}</div>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-manufacturer"><span data-toggle="tooltip" title="{{ help_manufacturer }}">{{ entry_manufacturer }}</span></label>
-                    <div class="col-sm-10">
-                      <input type="text" name="manufacturer" value="{{ manufacturer }}" placeholder="{{ entry_manufacturer }}" id="input-manufacturer" class="form-control" />
-                      <input type="hidden" name="manufacturer_id" value="{{ manufacturer_id }}" />
-                    </div>
-                  </div>
-                  <div class="form-group required">
-                    <label class="col-sm-2 control-label" for="input-price">{{ entry_price }}</label>
-                    <div class="col-sm-10">
-                      <input type="text" name="price" value="{{ price }}" placeholder="{{ entry_price }}" id="input-price" class="form-control" />
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
-                    <div class="col-sm-10">
-                      <select name="status" id="input-status" class="form-control">
-                        {% if status %}
-                        <option value="1" selected="selected">{{ text_enabled }}</option>
-                        <option value="0">{{ text_disabled }}</option>
-                        {% else %}
-                        <option value="1">{{ text_enabled }}</option>
-                        <option value="0" selected="selected">{{ text_disabled }}</option>
-                        {% endif %}
-                      </select>
-                    </div>
-                  </div>
-                  
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="status" id="input-status" class="form-control">
+                    {% if status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
                 </div>
               </div>
             </div>
@@ -103,42 +97,42 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-description2">{{ entry_description }}</label>
                 <div class="col-sm-10">
-                  <textarea name="product_description[2][description]" placeholder="{{ entry_description }}" id="input-description2" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_description[2] ? product_description[2].description }}</textarea>
+                  <textarea name="product_description[description]" placeholder="{{ entry_description }}" id="input-description2" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_description ? product_description.description }}</textarea>
                 </div>
               </div>
 
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-meta-h12">{{ entry_meta_h1 }}</label>
                 <div class="col-sm-10">
-                  <input type="text" name="product_description[2][meta_h1]" value="{{ product_description[2] ? product_description[2].meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h12" class="form-control" />
-                  {% if error_meta_h1[2] %}
-                  <div class="text-danger">{{ error_meta_h1[2] }}</div>
+                  <input type="text" name="product_description[meta_h1]" value="{{ product_description ? product_description.meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h12" class="form-control" />
+                  {% if error_meta_h1 %}
+                  <div class="text-danger">{{ error_meta_h1 }}</div>
                   {% endif %} </div>
               </div>
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-meta-title2">{{ entry_meta_title }}</label>
                 <div class="col-sm-10">
-                  <input type="text" name="product_description[2][meta_title]" value="{{ product_description[2] ? product_description[2].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title2" class="form-control" />
-                  {% if error_meta_title[2] %}
-                  <div class="text-danger">{{ error_meta_title[2] }}</div>
+                  <input type="text" name="product_description[meta_title]" value="{{ product_description ? product_description.meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title2" class="form-control" />
+                  {% if error_meta_title %}
+                  <div class="text-danger">{{ error_meta_title }}</div>
                   {% endif %} </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-meta-description2">{{ entry_meta_description }}</label>
                 <div class="col-sm-10">
-                  <textarea name="product_description[2][meta_description]" rows="5" placeholder="{{ entry_meta_description }}" id="input-meta-description2" class="form-control">{{ product_description[2] ? product_description[2].meta_description }}</textarea>
+                  <textarea name="product_description[meta_description]" rows="5" placeholder="{{ entry_meta_description }}" id="input-meta-description2" class="form-control">{{ product_description ? product_description.meta_description }}</textarea>
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-meta-keyword2">{{ entry_meta_keyword }}</label>
                 <div class="col-sm-10">
-                  <textarea name="product_description[2][meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}" id="input-meta-keyword2" class="form-control">{{ product_description[2] ? product_description[2].meta_keyword }}</textarea>
+                  <textarea name="product_description[meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}" id="input-meta-keyword2" class="form-control">{{ product_description ? product_description.meta_keyword }}</textarea>
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-tag2"><span data-toggle="tooltip" title="{{ help_tag }}">{{ entry_tag }}</span></label>
                 <div class="col-sm-10">
-                  <input type="text" name="product_description[2][tag]" value="{{ product_description[2] ? product_description[2].tag }}" placeholder="{{ entry_tag }}" id="input-tag2" class="form-control" />
+                  <input type="text" name="product_description[tag]" value="{{ product_description ? product_description.tag }}" placeholder="{{ entry_tag }}" id="input-tag2" class="form-control" />
                 </div>
               </div>
               <div class="form-group">
@@ -356,11 +350,11 @@
                   <tr id="attribute-row{{ attribute_row }}">
                     <td class="text-left" style="width: 40%;"><input type="text" name="product_attribute[{{ attribute_row }}][name]" value="{{ product_attribute.name }}" placeholder="{{ entry_attribute }}" class="form-control" />
                       <input type="hidden" name="product_attribute[{{ attribute_row }}][attribute_id]" value="{{ product_attribute.attribute_id }}" /></td>
-                    <td class="text-left">{% for language in languages %}
-                      <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
-                        <textarea name="product_attribute[{{ attribute_row }}][product_attribute_description][2][text]" rows="5" placeholder="{{ entry_text }}" class="form-control">{{ product_attribute.product_attribute_description[2] ? product_attribute.product_attribute_description[2].text }}</textarea>
+                    <td class="text-left">
+                      <div class="input-group">
+                        <textarea name="product_attribute[{{ attribute_row }}][product_attribute_description][text]" rows="5" placeholder="{{ entry_text }}" class="form-control">{{ product_attribute.product_attribute_description ? product_attribute.product_attribute_description.text }}</textarea>
                       </div>
-                      {% endfor %}</td>
+                    </td>
                     <td class="text-right"><button type="button" onclick="$('#attribute-row{{ attribute_row }}').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
                   </tr>
                   {% set attribute_row = attribute_row + 1 %}
@@ -944,9 +938,9 @@ function addAttribute() {
     html  = '<tr id="attribute-row' + attribute_row + '">';
 	html += '  <td class="text-left" style="width: 20%;"><input type="text" name="product_attribute[' + attribute_row + '][name]" value="" placeholder="{{ entry_attribute }}" class="form-control" /><input type="hidden" name="product_attribute[' + attribute_row + '][attribute_id]" value="" /></td>';
 	html += '  <td class="text-left">';
-	{% for language in languages %}
-	html += '<div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span><textarea name="product_attribute[' + attribute_row + '][product_attribute_description][2][text]" rows="5" placeholder="{{ entry_text }}" class="form-control"></textarea></div>';
-    {% endfor %}
+	
+	html += '<div class="input-group"><textarea name="product_attribute[' + attribute_row + '][product_attribute_description][text]" rows="5" placeholder="{{ entry_text }}" class="form-control"></textarea></div>';
+  
 	html += '  </td>';
 	html += '  <td class="text-right"><button type="button" onclick="$(\'#attribute-row' + attribute_row + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
     html += '</tr>';
@@ -1254,7 +1248,6 @@ $('.datetime').datetimepicker({
 });
 //--></script> 
   <script type="text/javascript"><!--
-$('#language a:first').tab('show');
 $('#option a:first').tab('show');
 //--></script></div>
 {{ footer }} 

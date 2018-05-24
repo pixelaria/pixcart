@@ -330,12 +330,12 @@ class ControllerCatalogAttributeGroup extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['attribute_group_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 64)) {
-				$this->error['name'][$language_id] = $this->language->get('error_name');
-			}
+		$attribute_group_description = $this->request->post['attribute_description'];
+		
+		if ((utf8_strlen($attribute_group_description['name']) < 1) || (utf8_strlen($attribute_group_description['name']) > 64)) {
+			$this->error['name'][$language_id] = $this->language->get('error_name');
 		}
-
+		
 		return !$this->error;
 	}
 
