@@ -515,7 +515,7 @@ class ControllerCatalogCategory extends Controller {
 				'sort'        => 'name',
 				'order'       => 'ASC',
 				'start'       => 0,
-				'limit'       => 5
+				'limit'       => 10
 			);
 
 			$results = $this->model_catalog_category->getCategories($filter_data);

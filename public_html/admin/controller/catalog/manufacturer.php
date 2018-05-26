@@ -314,32 +314,6 @@ class ControllerCatalogManufacturer extends Controller {
 			$data['name'] = '';
 		}
 
-		$this->load->model('setting/store');
-
-		$data['stores'] = array();
-		
-		$data['stores'][] = array(
-			'store_id' => 0,
-			'name'     => $this->language->get('text_default')
-		);
-		
-		$stores = $this->model_setting_store->getStores();
-
-		foreach ($stores as $store) {
-			$data['stores'][] = array(
-				'store_id' => $store['store_id'],
-				'name'     => $store['name']
-			);
-		}
-
-		if (isset($this->request->post['manufacturer_store'])) {
-			$data['manufacturer_store'] = $this->request->post['manufacturer_store'];
-		} elseif (isset($this->request->get['manufacturer_id'])) {
-			$data['manufacturer_store'] = $this->model_catalog_manufacturer->getManufacturerStores($this->request->get['manufacturer_id']);
-		} else {
-			$data['manufacturer_store'] = array(0);
-		}
-
 		if (isset($this->request->post['image'])) {
 			$data['image'] = $this->request->post['image'];
 		} elseif (!empty($manufacturer_info)) {
@@ -372,12 +346,12 @@ class ControllerCatalogManufacturer extends Controller {
 
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 		
-		if (isset($this->request->post['manufacturer_seo_url'])) {
-			$data['manufacturer_seo_url'] = $this->request->post['manufacturer_seo_url'];
-		} elseif (isset($this->request->get['manufacturer_id'])) {
-			$data['manufacturer_seo_url'] = $this->model_catalog_manufacturer->getManufacturerSeoUrls($this->request->get['manufacturer_id']);
+		if (isset($this->request->post['keyword'])) {
+			$data['keyword'] = $this->request->post['keyword'];
+		} elseif (!empty($manufacturer_info)) {
+			$data['keyword'] = $manufacturer_info['keyword'];
 		} else {
-			$data['manufacturer_seo_url'] = array();
+			$data['keyword'] = '';
 		}
 				
 		$data['header'] = $this->load->controller('common/header');
@@ -396,25 +370,17 @@ class ControllerCatalogManufacturer extends Controller {
 			$this->error['name'] = $this->language->get('error_name');
 		}
 
-		if ($this->request->post['manufacturer_seo_url']) {
+		if (utf8_strlen($this->request->post['keyword']) > 0) {
 			$this->load->model('design/seo_url');
+
+			$seo_url = $this->model_design_seo_url->getSeoUrlByKeyword($this->request->post['keyword']);
 			
-			foreach ($this->request->post['manufacturer_seo_url'] as $store_id => $language) {
-				foreach ($language as $language_id => $keyword) {
-					if (!empty($keyword)) {
-						if (count(array_keys($language, $keyword)) > 1) {
-							$this->error['keyword'][$store_id][$language_id] = $this->language->get('error_unique');
-						}							
-						
-						$seo_urls = $this->model_design_seo_url->getSeoUrlsByKeyword($keyword);
-						
-						foreach ($seo_urls as $seo_url) {
-							if (($seo_url['store_id'] == $store_id) && (!isset($this->request->get['manufacturer_id']) || (($seo_url['query'] != 'manufacturer_id=' . $this->request->get['manufacturer_id'])))) {
-								$this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
-							}
-						}
-					}
-				}
+			if ($seo_url && isset($this->request->get['manufacturer_id']) && $seo_url['query'] != 'manufacturer_id=' . $this->request->get['manufacturer_id']) {
+				$this->error['keyword'] = sprintf($this->language->get('error_keyword'));
+			}
+
+			if ($seo_url && !isset($this->request->get['manufacturer_id'])) {
+				$this->error['keyword'] = sprintf($this->language->get('error_keyword'));
 			}
 		}
 

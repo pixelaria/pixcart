@@ -588,7 +588,7 @@ class ControllerCatalogProduct extends Controller {
 		if (isset($this->request->post['product_description'])) {
 			$data['product_description'] = $this->request->post['product_description'];
 		} elseif (isset($this->request->get['product_id'])) {
-			$data['product_description'] = $this->model_catalog_product->getProductDescriptions($this->request->get['product_id']);
+			$data['product_description'] = $this->model_catalog_product->getProductDescription($this->request->get['product_id']);
 		} else {
 			$data['product_description'] = array();
 		}
@@ -1000,15 +1000,17 @@ class ControllerCatalogProduct extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['product_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
-				$this->error['name'][$language_id] = $this->language->get('error_name');
-			}
 
-			if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
-				$this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
-			}
+		$value = $this->request->post['product_description'];
+		
+		if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
+			$this->error['name'] = $this->language->get('error_name');
 		}
+
+		if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
+			$this->error['meta_title'] = $this->language->get('error_meta_title');
+		}
+		
 
 		if ((utf8_strlen($this->request->post['model']) < 1) || (utf8_strlen($this->request->post['model']) > 64)) {
 			$this->error['model'] = $this->language->get('error_model');
@@ -1019,11 +1021,11 @@ class ControllerCatalogProduct extends Controller {
 
 			$seo_url = $this->model_design_seo_url->getSeoUrlByKeyword($this->request->post['keyword']);
 			
-			if ($seo_url && isset($this->request->get['category_id']) && $seo_url['query'] != 'category_id=' . $this->request->get['category_id']) {
+			if ($seo_url && isset($this->request->get['product_id']) && $seo_url['query'] != 'product_id=' . $this->request->get['product_id']) {
 				$this->error['keyword'] = sprintf($this->language->get('error_keyword'));
 			}
 
-			if ($seo_url && !isset($this->request->get['category_id'])) {
+			if ($seo_url && !isset($this->request->get['product_id'])) {
 				$this->error['keyword'] = sprintf($this->language->get('error_keyword'));
 			}
 		}

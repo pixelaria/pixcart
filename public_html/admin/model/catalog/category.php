@@ -10,14 +10,15 @@ class ModelCatalogCategory extends Model {
 		}
 
 		if ($data['category_description']) {
+			$value = $data['category_description'];
 			$this->db->query("INSERT INTO " . DB_PREFIX . "category_description SET ".
         " category_id = '" . (int)$category_id . 
-        "', name = '" . $this->db->escape($data['category_description']['name']) . 
-        "', description = '" . $this->db->escape($data['category_description']['description']) . 
+        "', name = '" . $this->db->escape($value['name']) . 
+        "', description = '" . $this->db->escape($value['description']) . 
         "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . 
         "', meta_title = '" . $this->db->escape($value['meta_title']) . 
-        "', meta_description = '" . $this->db->escape($data['category_description']['meta_description']) . 
-        "', meta_keyword = '" . $this->db->escape($data['category_description']['meta_keyword']) . "'");
+        "', meta_description = '" . $this->db->escape($value['meta_description']) . 
+        "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
 		}
 
 		// MySQL Hierarchical Data Closure Table Pattern
@@ -54,14 +55,15 @@ class ModelCatalogCategory extends Model {
 
 		
     if ($data['category_description']) {
+    	$value = $data['category_description'];
       $this->db->query("INSERT INTO " . DB_PREFIX . "category_description SET ".
         " category_id = '" . (int)$category_id . 
-        "', name = '" . $this->db->escape($data['category_description']['name']) . 
-        "', description = '" . $this->db->escape($data['category_description']['description']) . 
-        "', meta_h1 = '" . $this->db->escape($data['category_description']['meta_h1']) . 
-        "', meta_title = '" . $this->db->escape($data['category_description']['meta_title']) . 
-        "', meta_description = '" . $this->db->escape($data['category_description']['meta_description']) . 
-        "', meta_keyword = '" . $this->db->escape($data['category_description']['meta_keyword']) . "'");
+        "', name = '" . $this->db->escape($value['name']) . 
+        "', description = '" . $this->db->escape($value['description']) . 
+        "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . 
+        "', meta_title = '" . $this->db->escape($value['meta_title']) . 
+        "', meta_description = '" . $this->db->escape($value['meta_description']) . 
+        "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
     }
 		
 
@@ -175,7 +177,7 @@ class ModelCatalogCategory extends Model {
 	}
 
 	public function getCategories($data = array()) {
-		$sql = "SELECT cp.category_id AS category_id, GROUP_CONCAT(cd1.name ORDER BY cp.level SEPARATOR '&nbsp;&nbsp;&gt;&nbsp;&nbsp;') AS name, c1.parent_id, c1.sort_order FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c1 ON (cp.category_id = c1.category_id) LEFT JOIN " . DB_PREFIX . "category c2 ON (cp.path_id = c2.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id)";
+		$sql = "SELECT cp.category_id AS category_id, GROUP_CONCAT(cd1.name ORDER BY cp.level SEPARATOR '&nbsp;&nbsp;&gt;&nbsp;&nbsp;') AS name, c1.parent_id, c1.sort_order FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c1 ON (cp.category_id = c1.category_id) LEFT JOIN " . DB_PREFIX . "category c2 ON (cp.path_id = c2.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id) WHERE 1";
 
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND cd2.name LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
