@@ -35,28 +35,19 @@
             </div>
           </div>
           <div class="tab-pane">
-            <ul class="nav nav-tabs" id="language">
-              {% for language in languages %}
-              <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>
-              {% endfor %}
-            </ul>
             <div class="tab-content">
-              {% for language in languages %}
-              <div class="tab-pane" id="language{{ language.language_id }}">
-                <div class="form-group">
-                  <label class="col-sm-2 control-label" for="input-title{{ language.language_id }}">{{ entry_title }}</label>
-                  <div class="col-sm-10">
-                    <input type="text" name="module_description[{{ language.language_id }}][title]" placeholder="{{ entry_title }}" id="input-heading{{ language.language_id }}" value="{{ module_description[language.language_id] ? module_description[language.language_id].title }}" class="form-control" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
-                  <div class="col-sm-10">
-                    <textarea name="module_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" class="form-control">{{ module_description[language.language_id] ? module_description[language.language_id].description }}</textarea>
-                  </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-title">{{ entry_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_description[title]" placeholder="{{ entry_title }}" id="input-heading" value="{{ module_description ? module_description.title }}" class="form-control" />
                 </div>
               </div>
-              {% endfor %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-description">{{ entry_description }}</label>
+                <div class="col-sm-10">
+                  <textarea name="module_description[description]" placeholder="{{ entry_description }}" id="input-description" data-toggle="summernote" class="form-control">{{ module_description ? module_description.description }}</textarea>
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-group">
@@ -87,7 +78,5 @@
   <link href="view/javascript/summernote/summernote.css" rel="stylesheet" />
   <script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
   <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
-  <script type="text/javascript"><!--
-$('#language a:first').tab('show');
-//--></script></div>
+</div>
 {{ footer }}
