@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']    = 'Категории';
+$_['heading_title']    = 'Категории в левой колонке';
 
 // Text
 $_['text_extension']   = 'Модули';
