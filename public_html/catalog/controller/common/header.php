@@ -45,14 +45,11 @@ class ControllerCommonHeader extends Controller {
 
 		$this->load->language('common/header');
 
-		// Wishlist
-		if ($this->customer->isLogged()) {
-			$this->load->model('account/wishlist');
+		
+		// Cart
+		$data['count_items'] = $this->cart->countProducts();
+		$data['count_items_text'] = $this->plural_form($data['count_items'], array('товар', 'товара', 'товаров'));     
 
-			$data['text_wishlist'] = sprintf($this->language->get('text_wishlist'), $this->model_account_wishlist->getTotalWishlist());
-		} else {
-			$data['text_wishlist'] = sprintf($this->language->get('text_wishlist'), (isset($this->session->data['wishlist']) ? count($this->session->data['wishlist']) : 0));
-		}
 
 		$data['text_logged'] = sprintf($this->language->get('text_logged'), $this->url->link('account/account', '', true), $this->customer->getFirstName(), $this->url->link('account/logout', '', true));
 		
@@ -79,5 +76,9 @@ class ControllerCommonHeader extends Controller {
 		$data['sidebar'] = $this->load->controller('common/sidebar');
 
 		return $this->load->view('common/header', $data);
+	}
+
+	private function plural_form($n, $forms) {
+		return $n%10==1&&$n%100!=11?$forms[0]:($n%10>=2&&$n%10<=4&&($n%100<10||$n%100>=20)?$forms[1]:$forms[2]);
 	}
 }
