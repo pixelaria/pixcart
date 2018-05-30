@@ -7,24 +7,17 @@
 **/
 
 var Cart = {
-  
-}
-// Cart add remove functions
-var cart = {
   init: function() {
+    console.log("Cart.init");
   },
   add: function(product_id, quantity) {
     $.ajax({
-      url: 'index.php?route=checkout/cart/add',
+      url: 'index.php?route=common/cart/add',
       type: 'post',
       data: 'product_id=' + product_id + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
       dataType: 'json',
-      beforeSend: function() {
-        $('#cart > button').button('loading');
-      },
-      complete: function() {
-        $('#cart > button').button('reset');
-      },
+      beforeSend: function() {},
+      complete: function() {},
       success: function(json) {
         $('.alert-dismissible, .text-danger').remove();
 
@@ -52,16 +45,12 @@ var cart = {
   },
   update: function(key, quantity) {
     $.ajax({
-      url: 'index.php?route=checkout/cart/edit',
+      url: 'index.php?route=common/cart/edit',
       type: 'post',
       data: 'key=' + key + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
       dataType: 'json',
-      beforeSend: function() {
-        $('#cart > button').button('loading');
-      },
-      complete: function() {
-        $('#cart > button').button('reset');
-      },
+      beforeSend: function() {},
+      complete: function() {},
       success: function(json) {
         // Need to set timeout otherwise it wont update the total
         setTimeout(function () {
@@ -81,16 +70,12 @@ var cart = {
   },
   remove: function(key) {
     $.ajax({
-      url: 'index.php?route=checkout/cart/remove',
+      url: 'index.php?route=common/cart/remove',
       type: 'post',
       data: 'key=' + key,
       dataType: 'json',
-      beforeSend: function() {
-        $('#cart > button').button('loading');
-      },
-      complete: function() {
-        $('#cart > button').button('reset');
-      },
+      beforeSend: function() {},
+      complete: function() {},
       success: function(json) {
         // Need to set timeout otherwise it wont update the total
         setTimeout(function () {

@@ -12,7 +12,6 @@ class ControllerCommonFooter extends Controller {
 		$data['search'] = $this->url->link('product/search');
 
 		// Dynamic links
-
 		$this->load->model('catalog/information');
 
 		$data['informations'] = array();
@@ -25,6 +24,9 @@ class ControllerCommonFooter extends Controller {
 		}
 
 		$data['powered'] = sprintf($this->language->get('text_powered'), $this->config->get('config_name'), date('Y', time()));
+
+		// Scripts
+		$this->document->addScript('catalog/view/javascript/cart.js','footer');
 
 		// Whos Online
 		if ($this->config->get('config_customer_online')) {
