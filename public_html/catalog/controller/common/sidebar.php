@@ -36,6 +36,7 @@ class ControllerCommonSidebar extends Controller {
 
 		$sidebar_informations = $this->model_catalog_information->getSidebarInformations();
 		
+
 		foreach ($sidebar_informations as $information) {
 			$data['informations'][] = array(
 				'title' => $information['title'],

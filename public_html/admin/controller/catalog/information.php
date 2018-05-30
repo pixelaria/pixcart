@@ -356,6 +356,14 @@ class ControllerCatalogInformation extends Controller {
 			$data['bottom'] = 0;
 		}
 
+		if (isset($this->request->post['sidebar'])) {
+			$data['sidebar'] = $this->request->post['sidebar'];
+		} elseif (!empty($information_info)) {
+			$data['sidebar'] = $information_info['sidebar'];
+		} else {
+			$data['sidebar'] = 0;
+		}
+
 		if (isset($this->request->post['status'])) {
 			$data['status'] = $this->request->post['status'];
 		} elseif (!empty($information_info)) {
@@ -377,7 +385,7 @@ class ControllerCatalogInformation extends Controller {
 		} elseif (isset($this->request->get['information_id'])) {
 			$data['keyword'] = $information_info['keyword'];
 		} else {
-			$data['keyword'] = array();
+			$data['keyword'] = '';
 		}
 		
 		if (isset($this->request->post['information_layout'])) {

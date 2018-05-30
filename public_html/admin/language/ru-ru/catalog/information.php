@@ -24,6 +24,7 @@ $_['entry_meta_keyword']        = 'Мета-тег Keywords:';
 $_['entry_meta_description']    = 'Мета-тег Description:';
 $_['entry_keyword']          	= 'SEO URL:';
 $_['entry_bottom']          	= 'Отображать в футере:';
+$_['entry_sidebar']           = 'Отображать в сайдбаре:';
 $_['entry_status']          	= 'Статус:';
 $_['entry_sort_order']          = 'Порядок сортировки:';
 $_['entry_layout']          	= 'Выберите макет:';
@@ -31,6 +32,7 @@ $_['entry_layout']          	= 'Выберите макет:';
 // Help
 $_['help_keyword']          	= 'Используйте тире вместо пробелов. Должно быть уникально на всю систему';
 $_['help_bottom']          		= 'Показать в футере';
+$_['help_sidebar']            = 'Показать в футере';
 
 // Error
 $_['error_warning']          	= 'Внимательно проверьте форму на ошибки!';

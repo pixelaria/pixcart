@@ -1,25 +1,45 @@
 <?php
 class ModelCatalogReview extends Model {
 	public function addReview($data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "review SET author = '" . $this->db->escape($data['author']) . "', text = '" . $this->db->escape(strip_tags($data['text'])) . "', rating = '" . (int)$data['rating'] . "', status = '" . (int)$data['status'] . "', date_added = '" . $this->db->escape($data['date_added']) . "'");
+		$this->db->query("INSERT INTO " . DB_PREFIX . "review SET ".
+			"   author = '" . $this->db->escape($data['author']) . 
+			"', text = '" . $this->db->escape(strip_tags($data['text'])) . 
+			"', rating = '" . (int)$data['rating'] . 
+			"', status = '" . (int)$data['status'] . 
+			"', date_added = '" . $this->db->escape($data['date_added']) . "'");
 
 		$review_id = $this->db->getLastId();
 
-		$this->cache->delete('product');
+		if (isset($data['photo'])) {
+			$this->db->query("UPDATE " . DB_PREFIX . "review SET photo = '" . $this->db->escape($data['photo']) . "' WHERE review_id = '" . (int)$review_id . "'");
+		}
+
+		$this->cache->delete('review');
 
 		return $review_id;
 	}
 
 	public function editReview($review_id, $data) {
-		$this->db->query("UPDATE " . DB_PREFIX . "review SET author = '" . $this->db->escape($data['author']) . "', text = '" . $this->db->escape(strip_tags($data['text'])) . "', rating = '" . (int)$data['rating'] . "', status = '" . (int)$data['status'] . "', date_added = '" . $this->db->escape($data['date_added']) . "', date_modified = NOW() WHERE review_id = '" . (int)$review_id . "'");
+		$this->db->query("UPDATE " . DB_PREFIX . "review SET ".
+			"   author = '" . $this->db->escape($data['author']) . 
+			"', text = '" . $this->db->escape(strip_tags($data['text'])) . 
+			"', rating = '" . (int)$data['rating'] . 
+			"', status = '" . (int)$data['status'] . 
+			"', date_added = '" . $this->db->escape($data['date_added']) . 
+			"', date_modified = NOW() WHERE review_id = '" . (int)$review_id . "'");
 
-		$this->cache->delete('product');
+		
+		if (isset($data['photo'])) {
+			$this->db->query("UPDATE " . DB_PREFIX . "review SET photo = '" . $this->db->escape($data['photo']) . "' WHERE review_id = '" . (int)$review_id . "'");
+		}
+
+		$this->cache->delete('review');
 	}
 
 	public function deleteReview($review_id) {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE review_id = '" . (int)$review_id . "'");
 
-		$this->cache->delete('product');
+		$this->cache->delete('review');
 	}
 
 	public function getReview($review_id) {
