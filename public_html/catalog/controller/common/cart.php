@@ -211,7 +211,12 @@ class ControllerCommonCart extends Controller {
 					array_multisort($sort_order, SORT_ASC, $totals);
 				}
 
-				$json['total'] = sprintf($this->language->get('text_items'), $this->cart->countProducts(), $this->currency->format($total, $this->session->data['currency']));
+				$count_items = $this->cart->countProducts();
+			  $count_items_text = $this->plural_form($count_items, array('товар', 'товара', 'товаров'));
+
+			  $json['count'] = $count_items;
+				$json['total'] = '<span>'.$count_items.' '.$count_items_text.'</span>';
+
 			} else {
 				$json['redirect'] = str_replace('&amp;', '&', $this->url->link('product/product', 'product_id=' . $this->request->post['product_id']));
 			}
@@ -311,5 +316,9 @@ class ControllerCommonCart extends Controller {
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
+	}
+	
+	private function plural_form($n, $forms) {
+		return $n%10==1&&$n%100!=11?$forms[0]:($n%10>=2&&$n%10<=4&&($n%100<10||$n%100>=20)?$forms[1]:$forms[2]);
 	}
 }

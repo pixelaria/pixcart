@@ -7,8 +7,28 @@
 **/
 
 var Cart = {
+  baron: false,
   init: function() {
     console.log("Cart.init");
+    var $baron = $('.baron');
+    var height = $baron.data('height');
+    if (height>0) 
+      $baron.css('height',height+'px')
+
+    Cart.baron = baron({
+      root: '.baron',
+      scroller: '.baron__scroller',
+      bar: '.baron__bar',
+      scrollingCls: '_scrolling',
+      draggingCls: '_dragging'
+    });
+
+    Cart.baron.controls({
+      track: '.baron__track',
+      forward: '.baron__down',
+      backward: '.baron__up'
+    });
+    
   },
   add: function(product_id, quantity) {
     $.ajax({
@@ -26,17 +46,30 @@ var Cart = {
         }
 
         if (json['success']) {
-
-          $('#panel').before('<div class="alert"><div class="alert__text">' + json['success'] + '</div></div>');
+          $('#panel').before('<div class="alert alert--active"><div class="container"><div class="alert__text">' + json['success'] + '</div><div class="alert__closer"></div></div></div>');
+          
+          setTimeout(function () {
+            var $alert = $('.alert');
+            $alert.removeClass('alert--active');
+            setTimeout(function() {
+              $alert.remove()
+            }, 350);
+          },3000);
 
           // Need to set timeout otherwise it wont update the total
           setTimeout(function () {
-            $('#cart > button').html('<span id="cart-total"><i class="fa fa-shopping-cart"></i> ' + json['total'] + '</span>');
+            $('.cart__toggler span').html(json['total']);
           }, 100);
 
           $('html, body').animate({ scrollTop: 0 }, 'slow');
 
-          $('#cart > ul').load('index.php?route=common/cart/info ul li');
+          $('#cart .baron__scroller').load('index.php?route=common/cart/info .baron__scroller > .cart__row');
+
+          setTimeout(function () {
+            Cart.baron.update();
+          }, 100);
+
+          
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {

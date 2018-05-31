@@ -33,14 +33,14 @@ class ModelLocalisationStockStatus extends Model {
 	}
 
 	public function getStockStatus($stock_status_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "stock_status WHERE stock_status_id = '" . (int)$stock_status_id . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "stock_status WHERE stock_status_id = '" . (int)$stock_status_id . "'");
 
 		return $query->row;
 	}
 
 	public function getStockStatuses($data = array()) {
 		if ($data) {
-			$sql = "SELECT * FROM " . DB_PREFIX . "stock_status WHERE language_id = '" . (int)$this->config->get('config_language_id') . "'";
+			$sql = "SELECT * FROM " . DB_PREFIX . "stock_status ";
 
 			$sql .= " ORDER BY name";
 
@@ -66,34 +66,34 @@ class ModelLocalisationStockStatus extends Model {
 
 			return $query->rows;
 		} else {
-			$stock_status_data = $this->cache->get('stock_status.' . (int)$this->config->get('config_language_id'));
+			$stock_status_data = $this->cache->get('stock_status');
 
 			if (!$stock_status_data) {
-				$query = $this->db->query("SELECT stock_status_id, name FROM " . DB_PREFIX . "stock_status WHERE language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY name");
+				$query = $this->db->query("SELECT stock_status_id, name FROM " . DB_PREFIX . "stock_status ORDER BY name");
 
 				$stock_status_data = $query->rows;
 
-				$this->cache->set('stock_status.' . (int)$this->config->get('config_language_id'), $stock_status_data);
+				$this->cache->set('stock_status', $stock_status_data);
 			}
 
 			return $stock_status_data;
 		}
 	}
 
-	public function getStockStatusDescriptions($stock_status_id) {
+	public function getStockStatusDescription($stock_status_id) {
 		$stock_status_data = array();
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "stock_status WHERE stock_status_id = '" . (int)$stock_status_id . "'");
 
-		foreach ($query->rows as $result) {
-			$stock_status_data[$result['language_id']] = array('name' => $result['name']);
+		if ($query->num_rows) {
+			$stock_status_data = $query->row;
 		}
 
 		return $stock_status_data;
 	}
 
 	public function getTotalStockStatuses() {
-		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "stock_status WHERE language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "stock_status");
 
 		return $query->row['total'];
 	}
