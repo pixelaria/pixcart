@@ -22,18 +22,24 @@ var Cart = {
       Cart.initBaron();
     }
 
+    Cart.$cart.on('change', '.spinner__input', function(e){
+      Cart.update($(this).closest('.cart__row').attr('data-cart-id'), $(this).val());
+      return false;
+    });
 
-    
-
+    Cart.$cart.on('click', '.cart__remove', function(e){
+      Cart.remove($(this).closest('.cart__row').attr('data-cart-id'));
+      return false;
+    });
   },
 
   initBaron: function() {
     console.log('cart.initBaron');
     Cart.$baron = $('.baron');
+    Cart.$products = $('.cart__products');
     
-    var height = Cart.$baron.data('height');
     if (Cart.count > 4) 
-      Cart.$baron.css('height','240px')
+      Cart.$products.css('height','240px')
 
     Cart.$baron = baron({
       root: '.baron',
@@ -66,7 +72,7 @@ var Cart = {
         }
 
         if (json['success']) {
-          Cart.count = json['count']
+          Cart.count = json['count'];
           Cart.alert(json['success'],'');
           
           setTimeout(function () {
@@ -86,19 +92,11 @@ var Cart = {
       type: 'post',
       data: 'key=' + key + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
       dataType: 'json',
-      beforeSend: function() {},
-      complete: function() {},
       success: function(json) {
         // Need to set timeout otherwise it wont update the total
         setTimeout(function () {
-          $('#cart > button').html('<span id="cart-total"><i class="fa fa-shopping-cart"></i> ' + json['total'] + '</span>');
+          Cart.refresh(json['total']);
         }, 100);
-
-        if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
-          location = 'index.php?route=checkout/cart';
-        } else {
-          $('#cart > ul').load('index.php?route=common/cart/info ul li');
-        }
       },
       error: function(xhr, ajaxOptions, thrownError) {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -112,19 +110,10 @@ var Cart = {
       type: 'post',
       data: 'key=' + key,
       dataType: 'json',
-      beforeSend: function() {},
-      complete: function() {},
       success: function(json) {
-        // Need to set timeout otherwise it wont update the total
         setTimeout(function () {
-          $('#cart > button').html('<span id="cart-total"><i class="fa fa-shopping-cart"></i> ' + json['total'] + '</span>');
+          Cart.refresh(json['total']);
         }, 100);
-
-        if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
-          location = 'index.php?route=checkout/cart';
-        } else {
-          $('#cart > ul').load('index.php?route=common/cart/info ul li');
-        }
       },
       error: function(xhr, ajaxOptions, thrownError) {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -137,7 +126,7 @@ var Cart = {
     
     $('<div/>',{
       appendTo: $('body'),
-      'class' : 'alert alert--active '+_class,
+      'class' : 'alert'+_class,
       html : [
         $('<div/>',{
           'class' : 'container',
@@ -153,7 +142,7 @@ var Cart = {
         }),
       ]
     });
-    $('html, body').animate({ scrollTop: 0 }, 'slow');
+    $('.alert').addClass('alert--active');
   },
 
   refresh: function(_total) {
@@ -172,7 +161,7 @@ var Cart = {
     } else {
       $( "#cart .baron__scroller" ).load('index.php?route=common/cart/info .baron__scroller > .cart__row', function() {
         if (Cart.count > 4) 
-          Cart.$baron.css('height','240px')
+          Cart.$products.css('height','240px')
         Cart.$baron.update();
       });
     }
