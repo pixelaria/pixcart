@@ -98,12 +98,6 @@ class ControllerCheckoutCheckout extends Controller {
 			// Способы оплаты и доставки
 			$data['shipping_methods'] = $this->getShippingMethods();
 			$data['payment_methods'] = $this->getPaymentMethods($total);
-			
-			
-			
-
-
-
 
 
 			$data['column_left'] = $this->load->controller('common/column_left');
@@ -134,10 +128,13 @@ class ControllerCheckoutCheckout extends Controller {
 		$shipping_methods = array();
 		$results = $this->model_setting_extension->getExtensions('shipping');
 
+
+
 		foreach ($results as $result) {
 			if ($this->config->get('shipping_' . $result['code'] . '_status')) {
 				$this->load->model('extension/shipping/' . $result['code']);
 				$quote = $this->{'model_extension_shipping_' . $result['code']}->getQuote('');
+				
 				if ($quote) {
 					$shipping_methods[$result['code']] = $quote;
 				}
@@ -153,6 +150,7 @@ class ControllerCheckoutCheckout extends Controller {
 		$this->session->data['shipping_methods'] = $shipping_methods;
 		// -------------------------------------------
 
+		return $shipping_methods;
 	}
 
 	// Получение способов оплаты
@@ -172,7 +170,8 @@ class ControllerCheckoutCheckout extends Controller {
 		}
 
 		$sort_order = array();
-		foreach ($method_data as $key => $value) {
+
+		foreach ($payment_methods as $key => $value) {
 			$sort_order[$key] = $value['sort_order'];
 		}
 
