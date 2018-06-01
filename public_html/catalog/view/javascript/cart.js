@@ -7,15 +7,35 @@
 **/
 
 var Cart = {
-  baron: false,
-  init: function() {
-    console.log("Cart.init");
-    var $baron = $('.baron');
-    var height = $baron.data('height');
-    if (height>0) 
-      $baron.css('height',height+'px')
+  empty:true,
+  count:0,
 
-    Cart.baron = baron({
+  init: function() {
+    console.log("cart.init");
+    
+    Cart.$cart = $('#cart'); //get cart object
+    Cart.$toggler = $('.cart__toggler span');
+    
+    if (Cart.$cart.find('.cart__empty').length==0) {
+      Cart.empty=false;
+      Cart.count = Cart.$cart.find('.cart__row').length;
+      Cart.initBaron();
+    }
+
+
+    
+
+  },
+
+  initBaron: function() {
+    console.log('cart.initBaron');
+    Cart.$baron = $('.baron');
+    
+    var height = Cart.$baron.data('height');
+    if (Cart.count > 4) 
+      Cart.$baron.css('height','240px')
+
+    Cart.$baron = baron({
       root: '.baron',
       scroller: '.baron__scroller',
       bar: '.baron__bar',
@@ -23,14 +43,15 @@ var Cart = {
       draggingCls: '_dragging'
     });
 
-    Cart.baron.controls({
+    Cart.$baron.controls({
       track: '.baron__track',
       forward: '.baron__down',
       backward: '.baron__up'
     });
-    
   },
+
   add: function(product_id, quantity) {
+    console.log('cart.add');
     $.ajax({
       url: 'index.php?route=common/cart/add',
       type: 'post',
@@ -39,37 +60,18 @@ var Cart = {
       beforeSend: function() {},
       complete: function() {},
       success: function(json) {
-        $('.alert').remove();
-        
-        if (json['redirect']) {
+
+        if (json['redirect']) { //if product needs option to select
           location = json['redirect'];
         }
 
         if (json['success']) {
-          $('#panel').before('<div class="alert alert--active"><div class="container"><div class="alert__text">' + json['success'] + '</div><div class="alert__closer"></div></div></div>');
+          Cart.count = json['count']
+          Cart.alert(json['success'],'');
           
           setTimeout(function () {
-            var $alert = $('.alert');
-            $alert.removeClass('alert--active');
-            setTimeout(function() {
-              $alert.remove()
-            }, 350);
-          },3000);
-
-          // Need to set timeout otherwise it wont update the total
-          setTimeout(function () {
-            $('.cart__toggler span').html(json['total']);
+            Cart.refresh(json['total']);
           }, 100);
-
-          $('html, body').animate({ scrollTop: 0 }, 'slow');
-
-          $('#cart .baron__scroller').load('index.php?route=common/cart/info .baron__scroller > .cart__row');
-
-          setTimeout(function () {
-            Cart.baron.update();
-          }, 100);
-
-          
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
@@ -78,6 +80,7 @@ var Cart = {
     });
   },
   update: function(key, quantity) {
+    console.log('cart.update');
     $.ajax({
       url: 'index.php?route=common/cart/edit',
       type: 'post',
@@ -103,6 +106,7 @@ var Cart = {
     });
   },
   remove: function(key) {
+    console.log('cart.remove');
     $.ajax({
       url: 'index.php?route=common/cart/remove',
       type: 'post',
@@ -126,6 +130,53 @@ var Cart = {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
       }
     });
+  },
+  alert: function(_text,_class) {
+    console.log('cart.alert');
+    $('.alert').remove();
+    
+    $('<div/>',{
+      appendTo: $('body'),
+      'class' : 'alert alert--active '+_class,
+      html : [
+        $('<div/>',{
+          'class' : 'container',
+          html: [
+            $('<div/>',{
+              'class': 'alert__text',
+              html: _text
+            }),
+            $('<div/>',{
+              'class': 'alert__closer'
+            }),
+          ]
+        }),
+      ]
+    });
+    $('html, body').animate({ scrollTop: 0 }, 'slow');
+  },
+
+  refresh: function(_total) {
+    console.log('cart.refresh');
+    // Need to set timeout otherwise it wont update the total
+    setTimeout(function () {
+      Cart.$toggler.html(_total);
+    }, 100);
+
+    // Loads cart content into Baron or creates Baron
+    if (Cart.empty) {
+      $('#cart').load('index.php?route=common/cart/info #cart', function() {
+        Cart.initBaron();
+      });
+      Cart.empty = false;
+    } else {
+      $( "#cart .baron__scroller" ).load('index.php?route=common/cart/info .baron__scroller > .cart__row', function() {
+        if (Cart.count > 4) 
+          Cart.$baron.css('height','240px')
+        Cart.$baron.update();
+      });
+    }
+
   }
 }
 
