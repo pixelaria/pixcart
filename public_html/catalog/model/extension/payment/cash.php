@@ -3,7 +3,7 @@
 * Оплата наличными -> Model Extension Payment COD
 */
 class ModelExtensionPaymentCash extends Model {
-	public function getMethod($total) {
+	public function getMethod() {
 		
 		$this->load->language('extension/payment/cash');
 

@@ -1,6 +1,6 @@
 <?php
 class ModelExtensionPaymentCard extends Model {
-	public function getMethod($total) {
+	public function getMethod() {
 		
 		$this->load->language('extension/payment/cheque');
 

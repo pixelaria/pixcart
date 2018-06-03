@@ -84,7 +84,7 @@ var Order = {
       success: function (data) {
         console.log(data);
         if (data.status) {
-           Order.countPrice();
+           Order.updateTotals();
         } else {
           Order.error(data.error);  
         }
@@ -151,7 +151,7 @@ var Order = {
         bl = Order.getCartBlockById(cart_id);
         bl.find('.cart__price').html(data.total);
         cart.refresh(); // обновляем виджет картины
-        Order.countPrice();
+        Order.updateTotals();
         Order.enableForm();
       },
     });
@@ -176,7 +176,7 @@ var Order = {
         block.hide('slow', function(){
           $(this).remove();
           cart.refresh();
-          Order.countPrice();
+          Order.updateTotals();
         });
       },
       error: function(xhr, ajaxOptions, thrownError) {
@@ -186,13 +186,12 @@ var Order = {
   },
 
     // Counting totals of order
-  countPrice: function() {
-    //console.log('countPrice');
-    //Order.disableForm();
+  updateTotals: function() {
+    console.log('updateTotals');
     
     $.ajax({
       method: 'POST',
-      url: '/index.php?route=checkout/checkout/getTotalData',
+      url: '/index.php?route=checkout/checkout/getOrderTotals',
       dataType: 'json',
       success: function (json) {
         //console.log(json['totals']);

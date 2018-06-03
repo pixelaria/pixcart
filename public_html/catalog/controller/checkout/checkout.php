@@ -97,16 +97,20 @@ class ControllerCheckoutCheckout extends Controller {
 
 			// Способы оплаты и доставки
 			$data['shipping_methods'] = $this->getShippingMethods();
-			$data['payment_methods'] = $this->getPaymentMethods($total);
+			$data['payment_methods'] = $this->getPaymentMethods();
 
 
+			$data['totals'] = $this->getOrderTotals(false);
+			
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['column_right'] = $this->load->controller('common/column_right');
 			$data['content_top'] = $this->load->controller('common/content_top');
 			$data['content_bottom'] = $this->load->controller('common/content_bottom');
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
+		
 		} else {
+
 			unset($this->session->data['success']);
 		
 			$data['column_left'] = $this->load->controller('common/column_left');
@@ -122,6 +126,66 @@ class ControllerCheckoutCheckout extends Controller {
 
 		$this->response->setOutput($this->load->view('checkout/checkout', $data));
 	}	
+
+	public function getOrderTotals($encode = true) {
+		$totals = array();
+		$total = 0;
+
+		// Because __call can not keep var references so we put them into an array.
+		$total_data = array(
+			'totals' => &$totals,
+			'total'  => &$total
+		);
+
+		$this->load->model('setting/extension');
+
+		$sort_order = array();
+
+		$results = $this->model_setting_extension->getExtensions('total');
+
+		foreach ($results as $key => $value) {
+			$sort_order[$key] = $this->config->get('total_' . $value['code'] . '_sort_order');
+		}
+
+		array_multisort($sort_order, SORT_ASC, $results);
+
+		foreach ($results as $result) {
+			if ($this->config->get('total_' . $result['code'] . '_status')) {
+				$this->load->model('extension/total/' . $result['code']);
+
+				// We have to put the totals in an array so that they pass by reference.
+				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
+			}
+		}
+
+		$sort_order = array();
+
+		foreach ($totals as $key => $value) {
+			$sort_order[$key] = $value['sort_order'];
+		}
+
+		array_multisort($sort_order, SORT_ASC, $totals);
+
+		$json['totals'] = array();
+
+		foreach ($totals as $total) {
+			$json['totals'][$total['code']] = array(
+				'code' => $total['code'],
+				'value' => $total['value'],
+				'title' => $total['title'],
+				'text'  => $this->currency->format($total['value'], $this->session->data['currency'])
+			);
+		}
+		
+		// Возвращаем результат
+		if ($encode) {
+			$this->response->setOutput(json_encode($json));
+		}
+		else {
+			return $json['totals'];
+		}
+	}
+
 
 	// Получение способов доставки
 	public function getShippingMethods() {
@@ -154,7 +218,7 @@ class ControllerCheckoutCheckout extends Controller {
 	}
 
 	// Получение способов оплаты
-	public function getPaymentMethods($total) {
+	public function getPaymentMethods() {
 		// Способы оплаты ----------------------------
 		$payment_methods = array();
 		$results = $this->model_setting_extension->getExtensions('payment');
@@ -162,7 +226,7 @@ class ControllerCheckoutCheckout extends Controller {
 		foreach ($results as $result) {
 			if ($this->config->get('payment_' . $result['code'] . '_status')) {
 				$this->load->model('extension/payment/' . $result['code']);
-				$method = $this->{'model_extension_payment_' . $result['code']}->getMethod($total);
+				$method = $this->{'model_extension_payment_' . $result['code']}->getMethod();
 				if ($method) {
 					$payment_methods[$result['code']] = $method;
 				}
@@ -182,7 +246,7 @@ class ControllerCheckoutCheckout extends Controller {
 	}
 
 
-		/**
+	/**
 	*	Setting shipping method of order
 	*/
 	public function setShippingMethod() {
@@ -228,7 +292,7 @@ class ControllerCheckoutCheckout extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
-	
+
 	public function _index() {
 		// Validate minimum quantity requirements.
 		$products = $this->cart->getProducts();
