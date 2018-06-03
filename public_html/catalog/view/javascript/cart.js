@@ -9,12 +9,15 @@
 var Cart = {
   empty:true,
   count:0,
+  currency:'р.',
 
   init: function() {
     console.log("cart.init");
     
     Cart.$cart = $('#cart'); //get cart object
-    Cart.$toggler = $('.cart__toggler span');
+    Cart.$toolbar = $('.toolbar'); //get cart object
+    Cart.$toggler = $('.cart__toggler');
+    Cart.$toggler_data = $('.cart__toggler span');
     
     if (Cart.$cart.find('.cart__empty').length==0) {
       Cart.empty=false;
@@ -23,12 +26,51 @@ var Cart = {
     }
 
     Cart.$cart.on('change', '.spinner__input', function(e){
-      Cart.update($(this).closest('.cart__row').attr('data-cart-id'), $(this).val());
+      var $row = $(this).closest('.cart__row'),
+          cart_id = $row.data('cart-id'),
+          price = $row.data('price'),
+          quantity = $(this).val();
+
+      var total = price*quantity;
+      Cart.update(cart_id,quantity,false);
+      Cart.updateRow($row,price,quantity);
       return false;
     });
 
     Cart.$cart.on('click', '.cart__remove', function(e){
       Cart.remove($(this).closest('.cart__row').attr('data-cart-id'));
+      return false;
+    });
+
+
+    Cart.$cart.on('click','.spinner__button', function(e){
+      console.log('.spinner__button');
+      var $spinner = $(this).closest('.spinner');
+      var $target = $spinner.find('.spinner__input');
+      var $placeholder = $spinner.find('.spinner__placeholder');
+      console.log($target);
+      
+      var change = 1,min = 1, max=200, uom = 'шт.';
+      if ($target.data('change') != undefined) change = parseInt($target.data('change'));
+      if ($target.data('min') != undefined) min = parseInt($target.data('min'));
+      if ($target.data('max') != undefined) max = parseInt($target.data('max'));
+      if ($target.data('uom') != undefined) uom = $target.data('uom');
+      
+      var val;
+      
+      if ($(this).hasClass('spinner__button--up')) {
+        val=parseInt($target.val()) + change;
+      } else {
+        val=parseInt($target.val()) - change;
+      }
+      
+      if (val<min) val=min;
+      if (val>max) val=max;
+
+      $target.val(val).change();
+      $target.trigger('change');
+      $placeholder.html(val+' '+uom);
+      console.log(val+' '+uom);
       return false;
     });
   },
@@ -74,10 +116,7 @@ var Cart = {
         if (json['success']) {
           Cart.count = json['count'];
           Cart.alert(json['success'],'');
-          
-          setTimeout(function () {
-            Cart.refresh(json['total']);
-          }, 100);
+          Cart.refresh(json['total'],true);
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
@@ -85,7 +124,7 @@ var Cart = {
       }
     });
   },
-  update: function(key, quantity) {
+  update: function(key, quantity,redraw) {
     console.log('cart.update');
     $.ajax({
       url: 'index.php?route=common/cart/edit',
@@ -94,14 +133,19 @@ var Cart = {
       dataType: 'json',
       success: function(json) {
         // Need to set timeout otherwise it wont update the total
-        setTimeout(function () {
-          Cart.refresh(json['total']);
-        }, 100);
+        Cart.count = json['count'];
+        Cart.refresh(json['total'],redraw);
       },
       error: function(xhr, ajaxOptions, thrownError) {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
       }
     });
+  },
+  updateRow: function(row,price,quantity) {
+    var $price = row.find('.cart__cell--total');
+    var _total = price*quantity;
+    _total = Cart.formatPrice(_total);
+    $price.html(_total+Cart.currency);
   },
   remove: function(key) {
     console.log('cart.remove');
@@ -111,9 +155,12 @@ var Cart = {
       data: 'key=' + key,
       dataType: 'json',
       success: function(json) {
-        setTimeout(function () {
+        Cart.count = json['count'];
+        
+        if (Cart.count != 0)
           Cart.refresh(json['total']);
-        }, 100);
+        else 
+          Cart.clear(json['total']);
       },
       error: function(xhr, ajaxOptions, thrownError) {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -145,27 +192,50 @@ var Cart = {
     $('.alert').addClass('alert--active');
   },
 
-  refresh: function(_total) {
+  refresh: function(_total,redraw) {
     console.log('cart.refresh');
     // Need to set timeout otherwise it wont update the total
+    /*
     setTimeout(function () {
-      Cart.$toggler.html(_total);
+      Cart.$toggler_data.html(_total);
     }, 100);
-
+    */
+    
+    Cart.$toggler_data.html(_total);
     // Loads cart content into Baron or creates Baron
-    if (Cart.empty) {
-      $('#cart').load('index.php?route=common/cart/info #cart', function() {
-        Cart.initBaron();
-      });
-      Cart.empty = false;
-    } else {
-      $( "#cart .baron__scroller" ).load('index.php?route=common/cart/info .baron__scroller > .cart__row', function() {
-        if (Cart.count > 4) 
-          Cart.$products.css('height','240px')
-        Cart.$baron.update();
-      });
+    if (redraw) {
+      if (Cart.empty) {
+        $('#cart').load('index.php?route=common/cart/info #cart >', function() {
+          Cart.initBaron();
+        });
+        Cart.empty = false;
+        Cart.$toggler.addClass('cart__toggler--not-empty');
+      } else {
+        $( "#cart .baron__scroller" ).load('index.php?route=common/cart/info .baron__scroller > .cart__row', function() {
+          if (Cart.count > 4) 
+            Cart.$products.css('height','240px')
+          Cart.$baron.update();
+        });
+      }
     }
-
+  },
+  clear: function(_total) {
+    console.log('cart.clear');
+    Cart.$toggler_data.html(_total);
+    Cart.$toggler.removeClass('cart__toggler--not-empty');
+    Cart.$cart.empty();
+    Cart.$cart.removeClass('cart--active');
+    Cart.$toolbar.removeClass('toolbar--active');
+    $('<div/>',{
+      appendTo: Cart.$cart,
+      class: 'cart__empty',
+      html: 'В корзине пусто!'
+    });
+  },
+  formatPrice: function(price) {
+    price += "";
+    price = new Array(4 - price.length % 3).join("U") + price;
+    return price.replace(/([0-9U]{3})/g, "$1 ").replace(/U/g, "");
   }
 }
 

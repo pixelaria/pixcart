@@ -83,10 +83,8 @@ class ControllerCommonCart extends Controller {
 
 			// Display prices
 			if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-				$price = $this->currency->format($product['price'], $this->session->data['currency']);
 				$total = $this->currency->format($product['price'] * $product['quantity'], $this->session->data['currency']);
 			} else {
-				$price = false;
 				$total = false;
 			}
 
@@ -97,7 +95,7 @@ class ControllerCommonCart extends Controller {
 				'model'     => $product['model'],
 				'option'    => $option_data,
 				'quantity'  => $product['quantity'],
-				'price'     => $price,
+				'price'     => $product['price'],
 				'total'     => $total,
 				'href'      => $this->url->link('product/product', 'product_id=' . $product['product_id'])
 			);

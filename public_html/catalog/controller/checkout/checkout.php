@@ -182,6 +182,53 @@ class ControllerCheckoutCheckout extends Controller {
 	}
 
 
+		/**
+	*	Setting shipping method of order
+	*/
+	public function setShippingMethod() {
+		$json = array();
+		$json['status'] = false;
+		
+		if (isset($this->request->post['code'])) {
+			$code=$this->request->post['code'];
+			$shipping_method=$this->session->data['shipping_methods'][$code]; 
+			if ($shipping_method) {
+				unset($this->session->data['shipping_method']);
+				$this->session->data['shipping_method'] = $shipping_method;
+				$json['status'] = true;
+			} else {
+				$json['error'] = 'Неизвестный способ доставки';
+			}
+		} else {
+			$json['error'] = 'Не указан тип доставки';
+		}
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function setPaymentMethod() {
+		$json = array();
+		$json['status'] = false;
+
+		
+		if (isset($this->request->post['code'])) {
+			$code=$this->request->post['code'];
+			$payment_method=$this->session->data['payment_methods'][$code]; 
+			if ($payment_method) {
+				unset($this->session->data['payment_method']);
+				$this->session->data['payment_method'] = $payment_method;
+				$json['status'] = true;
+				$json['message'] = 'Установили способ оплаты: '.$code;
+			} else {
+				$json['error'] = 'Неизвестный способ оплаты';
+			}
+		} else {
+			$json['error'] = 'Не указан тип оплаты';
+		}
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+	
 	public function _index() {
 		// Validate minimum quantity requirements.
 		$products = $this->cart->getProducts();
@@ -252,32 +299,6 @@ class ControllerCheckoutCheckout extends Controller {
 		$data['header'] = $this->load->controller('common/header');
 
 		$this->response->setOutput($this->load->view('checkout/checkout', $data));
-	}
-
-	public function country() {
-		$json = array();
-
-		$this->load->model('localisation/country');
-
-		$country_info = $this->model_localisation_country->getCountry($this->request->get['country_id']);
-
-		if ($country_info) {
-			$this->load->model('localisation/zone');
-
-			$json = array(
-				'country_id'        => $country_info['country_id'],
-				'name'              => $country_info['name'],
-				'iso_code_2'        => $country_info['iso_code_2'],
-				'iso_code_3'        => $country_info['iso_code_3'],
-				'address_format'    => $country_info['address_format'],
-				'postcode_required' => $country_info['postcode_required'],
-				'zone'              => $this->model_localisation_zone->getZonesByCountryId($this->request->get['country_id']),
-				'status'            => $country_info['status']
-			);
-		}
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
 	}
 
 }
