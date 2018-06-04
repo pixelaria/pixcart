@@ -6,10 +6,14 @@ class ModelDesignBanner extends Model {
 		$banner_id = $this->db->getLastId();
 
 		if (isset($data['banner_image'])) {
-			foreach ($data['banner_image'] as $language_id => $value) {
-				foreach ($value as $banner_image) {
-					$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', sort_order = '" .  (int)$banner_image['sort_order'] . "'");
-				}
+			foreach ($data['banner_image'] as $banner_image) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET ". 
+          "   banner_id = '" . (int)$banner_id . 
+          "', title = '" .  $this->db->escape($banner_image['title']) . 
+          "', text = '" .  $this->db->escape($banner_image['text']) . 
+          "', link = '" .  $this->db->escape($banner_image['link']) . 
+          "', image = '" .  $this->db->escape($banner_image['image']) . 
+          "', sort_order = '" .  (int)$banner_image['sort_order'] . "'");
 			}
 		}
 
@@ -22,11 +26,15 @@ class ModelDesignBanner extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "banner_image WHERE banner_id = '" . (int)$banner_id . "'");
 
 		if (isset($data['banner_image'])) {
-			foreach ($data['banner_image'] as $language_id => $value) {
-				foreach ($value as $banner_image) {
-					$this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET banner_id = '" . (int)$banner_id . "', language_id = '" . (int)$language_id . "', title = '" .  $this->db->escape($banner_image['title']) . "', link = '" .  $this->db->escape($banner_image['link']) . "', image = '" .  $this->db->escape($banner_image['image']) . "', sort_order = '" . (int)$banner_image['sort_order'] . "'");
-				}
-			}
+			foreach ($data['banner_image'] as $banner_image) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "banner_image SET ". 
+          "   banner_id = '" . (int)$banner_id . 
+          "', title = '" .  $this->db->escape($banner_image['title']) . 
+          "', text = '" .  $this->db->escape($banner_image['text']) . 
+          "', link = '" .  $this->db->escape($banner_image['link']) . 
+          "', image = '" .  $this->db->escape($banner_image['image']) . 
+          "', sort_order = '" .  (int)$banner_image['sort_order'] . "'");
+      }
 		}
 	}
 
@@ -84,8 +92,9 @@ class ModelDesignBanner extends Model {
 		$banner_image_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "banner_image WHERE banner_id = '" . (int)$banner_id . "' ORDER BY sort_order ASC");
 
 		foreach ($banner_image_query->rows as $banner_image) {
-			$banner_image_data[$banner_image['language_id']][] = array(
+			$banner_image_data[] = array(
 				'title'      => $banner_image['title'],
+        'text'       => $banner_image['text'],
 				'link'       => $banner_image['link'],
 				'image'      => $banner_image['image'],
 				'sort_order' => $banner_image['sort_order']
