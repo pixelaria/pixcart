@@ -213,9 +213,10 @@ class ControllerCommonCart extends Controller {
 				*/
 
 				$count_items = $this->cart->countProducts();
+				$count_rows = $this->cart->countRows();
 			  $count_items_text = $this->plural_form($count_items, array('товар', 'товара', 'товаров'));
 
-			  $json['count'] = $count_items;
+			  $json['count'] = $count_rows;
 				$json['total'] = '<span>'.$count_items.' '.$count_items_text.'</span>';
 
 			} else {
@@ -237,9 +238,10 @@ class ControllerCommonCart extends Controller {
 			$json=$this->cart->update($this->request->post['key'], $this->request->post['quantity']);
 
 			$count_items = $this->cart->countProducts();
+			$count_rows = $this->cart->countRows();
 		  $count_items_text = $this->plural_form($count_items, array('товар', 'товара', 'товаров'));
 
-		  $json['count'] = $count_items;
+		  $json['count'] = $count_rows;
 			$json['total'] = '<span>'.$count_items.' '.$count_items_text.'</span>';
 		}
 		
@@ -258,9 +260,10 @@ class ControllerCommonCart extends Controller {
 			$this->cart->remove($this->request->post['key']);
 
 			$count_items = $this->cart->countProducts();
+			$count_rows = $this->cart->countRows();
 		  $count_items_text = $this->plural_form($count_items, array('товар', 'товара', 'товаров'));
 
-		  $json['count'] = $count_items;
+		  $json['count'] = $count_rows;
 			$json['total'] = '<span>'.$count_items.' '.$count_items_text.'</span>';
 		}
 

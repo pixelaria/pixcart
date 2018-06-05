@@ -115,7 +115,7 @@ var Cart = {
 
         if (json['success']) {
           Cart.count = json['count'];
-          Cart.alert(json['success'],'');
+          Cart.success(json['success']);
           Cart.refresh(json['total'],true);
         }
       },
@@ -167,13 +167,38 @@ var Cart = {
       }
     });
   },
-  alert: function(_text,_class) {
-    console.log('cart.alert');
+  success: function(_text) {
+    console.log('cart.alert success');
     $('.alert').remove();
     
     $('<div/>',{
       appendTo: $('body'),
-      'class' : 'alert'+_class,
+      'class' : 'alert alert--success',
+      html : [
+        $('<div/>',{
+          'class' : 'container',
+          html: [
+            $('<div/>',{
+              'class': 'alert__text',
+              html: _text
+            }),
+            $('<div/>',{
+              'class': 'alert__closer'
+            }),
+          ]
+        }),
+      ]
+    });
+    $('.alert').addClass('alert--active');
+  },
+
+  error: function(_text) {
+    console.log('cart.alert error');
+    $('.alert').remove();
+    
+    $('<div/>',{
+      appendTo: $('body'),
+      'class' : 'alert alert--error',
       html : [
         $('<div/>',{
           'class' : 'container',
