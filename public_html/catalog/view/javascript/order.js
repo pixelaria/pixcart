@@ -313,7 +313,7 @@ var Order = {
       return false;
     }
 
-    if (Order.fields.firstname.val().length  != 18) {
+    if (Order.fields.phone.val().length  != 18) {
       Order.error('Полe "Телефон" заполнено не коррертно!');
       $('#telephone').addClass('input-group__input--error');
       return false;
