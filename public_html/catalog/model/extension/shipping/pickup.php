@@ -8,6 +8,7 @@ class ModelExtensionShippingPickup extends Model {
 			'title'		=> $this->language->get('text_title'),
 			'desc'		=> $this->language->get('text_description'),
 			'cost'		=> 0.00,
+			'delivery'=> false,
 			'text'		=> $this->currency->format(0.00, $this->session->data['currency']),
 			'sort_order' => $this->config->get('shipping_pickup_sort_order')
 		);

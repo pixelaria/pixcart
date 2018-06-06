@@ -11,6 +11,7 @@ var Order = {
   payment_status: false, // Payment status
   total: 0, // Curent price of order
   sub_total: 0,
+  sale:0, // Sale amount
   payment_method: '', // Selected payment method
   shipping_method: '', // Selected shipping method
   fields: {},
@@ -28,10 +29,11 @@ var Order = {
 
     Order.fields.firstname = $('.order__fields').find('input[name="firstname"]');
     Order.fields.lastname = $('.order__fields').find('input[name="lastname"]');
-    Order.fields.phone = $('.order__fields').find('input[name="phone"]');
-    Order.fields.address = $('.order__fields').find('input[name="address"]');
+    Order.fields.phone = $('.order__fields').find('input[name="telephone"]');
+    Order.fields.address = $('.order__fields').find('textarea[name="address"]');
     
-    
+    Order.$total = $('.order__total span');
+    Order.$submit = $('#order__submit');
     // Changing product count
     $('.order__products').on('change', '.spinner__input', function(e){
       //console.log('spinner input change');
@@ -47,18 +49,22 @@ var Order = {
     });
     
 
-    $('.order__products').on('change', '.radioblock__input[name="shipping_method"]', function(e){
+    $('.order').on('change', '.radioblock__input[name="shipping_method"]', function(e){
+      console.log('shipping_method changed');
       var method = $(this).val();
       Order.setShippingMethod(method);
     });
 
-    $('.order__products').on('change', '.radioblock__input[name="payment_method"]', function(e){
+    $('.order').on('change', '.radioblock__input[name="payment_method"]', function(e){
+      console.log('payment_method changed')
       var method = $(this).val();
       Order.setPaymentMethod(method);
     });
 
+
+
     // Submitting order
-    $('.order__form').submit(function(){
+    Order.$submit.click(function(e){
       if (Order.validate()) {
         Order.submit();
       }
@@ -81,13 +87,18 @@ var Order = {
         code: code,
       },
       dataType: 'json',
+      beforeSend: function(xhr, opts){
+        Order.disable();
+      },
       success: function (data) {
         console.log(data);
         if (data.status) {
            Order.updateTotals();
+           Order.showAddress(data.delivery);
         } else {
           Order.error(data.error);  
         }
+        Order.enable();
       },
     });
   },
@@ -106,12 +117,18 @@ var Order = {
         code: code,
       },
       dataType: 'json',
+      beforeSend: function(xhr, opts){
+        Order.disable();
+      },
       success: function (data) {
         console.log(data);
+        
         if (data.status) {
         } else {
           Order.error(data.error);  
         }
+
+        Order.enable();
       },
     });
   },
@@ -137,7 +154,6 @@ var Order = {
   */ 
   setProductQuantity: function (cart_id, quantity) {
     //console.log('set product quantity');
-    //Order.disableForm();
     $.ajax({
       method: 'POST',
       url: '/index.php?route=common/cart/edit',
@@ -146,13 +162,18 @@ var Order = {
         quantity: quantity,
       },
       dataType: 'json',
+      beforeSend: function(xhr, opts){
+        Order.disable();
+      },
       success: function (data) {
         //console.log(data);
         bl = Order.getCartBlockById(cart_id);
         bl.find('.cart__price').html(data.total);
-        cart.refresh(); // обновляем виджет картины
+        
+        Cart.refresh(); // обновляем виджет картины
         Order.updateTotals();
-        Order.enableForm();
+        
+        Order.enable();
       },
     });
   },
@@ -172,11 +193,15 @@ var Order = {
         key: id,
       },
       dataType: 'json',
+      beforeSend: function(xhr, opts){
+        Order.disable();
+      },
       success: function (data) {
         block.hide('slow', function(){
           $(this).remove();
           cart.refresh();
           Order.updateTotals();
+          Order.enable();
         });
       },
       error: function(xhr, ajaxOptions, thrownError) {
@@ -194,36 +219,35 @@ var Order = {
       url: '/index.php?route=checkout/checkout/getOrderTotals',
       dataType: 'json',
       success: function (json) {
-        //console.log(json['totals']);
-        order__totals=$('#order__totals');
-        var html = '';
-
+        console.log(json['totals']);
+        $order__totals=$('#order__totals');
+        
+        $order__totals.empty();
         if (json['totals']) {
-              for (i in json['totals']) {
-                total = json['totals'][i];
+          for (i in json['totals']) {
+            var total = json['totals'][i];
+            var _class ='';
 
-                if (total['code']=='sub_total') 
-                  Order.sub_total=total['value'];
-                 if (total['code']=='total') 
-                  Order.total=total['value'];
-
-                if (total['value']!=0) { // Display in table only not zero-values 
-                  var $class = 'order__totals';
-                  var $subclass = '';
-                  if (total['value']<0) $class +=' order__sale';
-                  if (total['code']=='total') $subclass = ' order__total';
-                  
-                  html += '<div class="'+$class+$subclass+'">';
-                  html += '  <span>'+total['title']+':</span><span>'+total['text']+'</span>';
-                  html += '</div>';
-                }
-              }
+            if (total['code']=='sub_total') {
+              Order.sub_total=total['value'];
+            } else if (total['code']=='total') {
+              Order.total=total['value'];
+              _class=' order__total--total';
+            } else if (total['code']=='total') {
+              Order.sale=total['value'];
+              _class=' order__total--sale';
             }
+
+            if (total['value']!=0) { // Display in table only not zero-values 
+              $('<div/>',{
+                appendTo: $order__totals,
+                'class': 'order__total'+_class,
+                html: total['title']+': <span>'+total['text']+'</span>'
+              });
+            }
+          }
+        }
         
-        order__totals.html(html);
-        
-        map.container.fitToViewport();
-        //Order.enableForm();
       },error: function(xhr, ajaxOptions, thrownError) {
         alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
       }
@@ -232,10 +256,9 @@ var Order = {
 
   // Clear current order and reload page
   clear: function () {
-    //console.log('clear order');
     $.ajax({
       method: 'POST',
-      url: '/index.php?route=checkout/fscheckout/clearOrder',
+      url: '/index.php?route=checkout/checkout/clear',
       dataType: 'json',
       success: function (data) {  
         if (data.status) {
@@ -250,14 +273,20 @@ var Order = {
     $('.input-group__input--error').removeClass('input-group__input--error');
     
     if (Order.fields.firstname.val() == '') {
-      Order.error('Поля "Имя" и "Телефон" обязательны для заполнения!');
-      $('#name').addClass('input-group__input--error');
-      return false;
+      $('#firstname').addClass('input-group__input--error');
     }
-    
+
+    if (Order.fields.lastname.val() == '') {
+      $('#lastname').addClass('input-group__input--error');
+    }
+
     if (Order.fields.phone.val() == '') {
-      Order.error('Поля "Имя" и "Телефон" обязательны для заполнения!')
       $('#telephone').addClass('input-group__input--error');
+    }
+
+
+    if ($('.input-group__input--error').length) {
+      Order.error('Заполните обязательные поля');
       return false;
     }
 
@@ -276,6 +305,21 @@ var Order = {
     } 
 
     return true;
+  },
+
+  showAddress: function(display) {
+    console.log('showAddress: '+display);
+    Order.fields.address.parent().toggleClass('input-group--hidden',!display);
+  },
+
+  disable: function() {
+    Order.$submit.prop('disabled', true);
+    Order.$submit.addClass('btn--disable');
+  },
+  
+  enable: function() {
+    Order.$submit.prop('disabled', false);
+    Order.$submit.removeClass('btn--disable');
   },
 
   // Submit funcion
@@ -307,14 +351,38 @@ var Order = {
     });
   },
 
-  // Alerts (success, errors)
-  alert: function(_text,_class) {
-    console.log('cart.alert');
+  success: function(_text) {
+    console.log('cart.alert success');
     $('.alert').remove();
     
     $('<div/>',{
       appendTo: $('body'),
-      'class' : 'alert'+_class,
+      'class' : 'alert alert--success',
+      html : [
+        $('<div/>',{
+          'class' : 'container',
+          html: [
+            $('<div/>',{
+              'class': 'alert__text',
+              html: _text
+            }),
+            $('<div/>',{
+              'class': 'alert__closer'
+            }),
+          ]
+        }),
+      ]
+    });
+    $('.alert').addClass('alert--active');
+  },
+
+  error: function(_text) {
+    console.log('cart.alert error');
+    $('.alert').remove();
+    
+    $('<div/>',{
+      appendTo: $('body'),
+      'class' : 'alert alert--error',
       html : [
         $('<div/>',{
           'class' : 'container',

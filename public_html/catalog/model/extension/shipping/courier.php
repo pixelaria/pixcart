@@ -8,6 +8,7 @@ class ModelExtensionShippingCourier extends Model {
 			'title'		=> $this->language->get('text_title'),
 			'desc'		=> $this->language->get('text_description'),
 			'cost'		=> 350.00,
+			'delivery'=> true,
 			'text'		=> $this->currency->format(350.00, $this->session->data['currency']),
 			'sort_order' => $this->config->get('shipping_courier_sort_order')
 		);

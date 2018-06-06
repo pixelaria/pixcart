@@ -8,7 +8,7 @@ class ControllerCheckoutCheckout extends Controller {
 
 
 		// Scripts 
-		$this->document->addScript('catalog/view/javascript/order.js');
+		$this->document->addScript('catalog/view/javascript/order.js','footer');
 
 
 		// Breadcrumbs
@@ -95,10 +95,27 @@ class ControllerCheckoutCheckout extends Controller {
 			}
 			*/
 
-			// Способы оплаты и доставки
+			// Все способы оплаты и доставки
 			$data['shipping_methods'] = $this->getShippingMethods();
 			$data['payment_methods'] = $this->getPaymentMethods();
 
+			// Текущий способ оплаты
+			if (isset($this->session->data['payment_method'])) {
+				$data['payment_method'] = $this->session->data['payment_method']['code'];
+			} else {
+				$this->session->data['payment_method'] = $this->session->data['payment_methods']['cash'];
+				$data['payment_method'] = 'cash';
+			}
+
+			// Текущий способ доставки
+			if (isset($this->session->data['shipping_method'])) {
+				$data['shipping_method'] = $this->session->data['shipping_method']['code'];
+			} else {
+				$this->session->data['shipping_method'] = $this->session->data['shipping_methods']['courier'];
+				$data['shipping_method'] = 'courier';
+			}
+
+			$data['delivery'] = ($data['shipping_method']=='courier');
 
 			$data['totals'] = $this->getOrderTotals(false);
 			
@@ -171,6 +188,7 @@ class ControllerCheckoutCheckout extends Controller {
 		foreach ($totals as $total) {
 			$json['totals'][$total['code']] = array(
 				'code' => $total['code'],
+				'class' => ($total['code']=='total')?'order__total--total':'',
 				'value' => $total['value'],
 				'title' => $total['title'],
 				'text'  => $this->currency->format($total['value'], $this->session->data['currency'])
@@ -259,7 +277,10 @@ class ControllerCheckoutCheckout extends Controller {
 			if ($shipping_method) {
 				unset($this->session->data['shipping_method']);
 				$this->session->data['shipping_method'] = $shipping_method;
+				
 				$json['status'] = true;
+				$json['delivery'] = $shipping_method['delivery'];
+
 			} else {
 				$json['error'] = 'Неизвестный способ доставки';
 			}
