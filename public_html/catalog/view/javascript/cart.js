@@ -219,13 +219,6 @@ var Cart = {
 
   refresh: function(_total,redraw) {
     console.log('cart.refresh');
-    // Need to set timeout otherwise it wont update the total
-    /*
-    setTimeout(function () {
-      Cart.$toggler_data.html(_total);
-    }, 100);
-    */
-    
     Cart.$toggler_data.html(_total);
     // Loads cart content into Baron or creates Baron
     if (redraw) {

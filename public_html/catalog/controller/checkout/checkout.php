@@ -41,7 +41,6 @@ class ControllerCheckoutCheckout extends Controller {
 					$thumb = '';
 				}
 
-				$price = $this->currency->format($product['price'], $this->session->data['currency']);
 				$total = $this->currency->format($product['price'] * $product['quantity'], $this->session->data['currency']);
 				
 				$data['products'][] = array(
@@ -51,7 +50,7 @@ class ControllerCheckoutCheckout extends Controller {
 					'name'      	=> $product['name'],
 					'description'	=> strip_tags(html_entity_decode($product['description'], ENT_QUOTES, 'UTF-8')),
 					'quantity'  	=> $product['quantity'],
-					'price'     	=> $price,
+					'price'     	=> $product['price'],
 					'total'     	=> $total,
 					'href'      	=> $this->url->link('product/product', 'product_id=' . $product['product_id'])
 				);

@@ -34,17 +34,30 @@ var Order = {
     
     Order.$total = $('.order__total span');
     Order.$submit = $('#order__submit');
+    Order.$products = $('.order__products');
+
+
     // Changing product count
-    $('.order__products').on('change', '.spinner__input', function(e){
-      //console.log('spinner input change');
-      Order.setProductQuantity($(this).closest('tr').data('cart-id'), $(this).val());
+    
+    Order.$products.on('change', '.spinner__input', function(e){
+      console.log('spinner__input change');
+      var $row = $(this).closest('.order__table-row'),
+          cart_id = $row.data('cart-id'),
+          price = $row.data('price'),
+          quantity = $(this).val();
+
+      var total = price*quantity;
+      
+      Order.setProductQuantity(cart_id,quantity);
+      Order.updateRow($row,price,quantity);
+      
       return false;
     });
-
+    
     // Removing product from order
     $('.order__products .order__remove').click(function(e) {
-      //console.log('btn remove click');
-      Order.deleteProduct($(this).closest('tr').data('cart-id'));
+      console.log('btn remove click');
+      Order.deleteProduct($(this).closest('.order__table-row').data('cart'));
       return false;
     });
     
@@ -60,7 +73,6 @@ var Order = {
       var method = $(this).val();
       Order.setPaymentMethod(method);
     });
-
 
 
     // Submitting order
@@ -153,31 +165,42 @@ var Order = {
   * @param quantity - new quantity of product
   */ 
   setProductQuantity: function (cart_id, quantity) {
-    //console.log('set product quantity');
+    console.log('set product quantity: '+cart_id+', quantity: '+quantity);
+    
     $.ajax({
       method: 'POST',
       url: '/index.php?route=common/cart/edit',
       data: {
-        cart_id: cart_id,
+        key: cart_id,
         quantity: quantity,
       },
+
       dataType: 'json',
       beforeSend: function(xhr, opts){
         Order.disable();
       },
       success: function (data) {
-        //console.log(data);
-        bl = Order.getCartBlockById(cart_id);
-        bl.find('.cart__price').html(data.total);
         
-        Cart.refresh(); // обновляем виджет картины
-        Order.updateTotals();
-        
+        console.log(data);
+       
+        Cart.refresh(data.total,true); // Refresh cart
+        Order.updateTotals(); // Update order totals
         Order.enable();
+        
       },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
     });
   },
-
+  updateRow: function(row,price,quantity) {
+    console.log('updateRow');
+    var $price = row.find('.order__cell--total');
+    var _total = price*quantity;
+    _total = Cart.formatPrice(_total);
+    $price.html(_total+Cart.currency);
+  },
+  
   /**
   * DeleteProduct from cart
   * @param id 
@@ -404,6 +427,10 @@ var Order = {
 
 $(function (){
   console.log('pre-init');
+  var $buttons = $('.order__buttons');
+  var $products = $('.order__products');
+  $products.after($buttons);
+
   Order.init();
   console.log('after-init');
 });
