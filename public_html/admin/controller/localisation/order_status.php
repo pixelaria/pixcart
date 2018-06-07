@@ -292,16 +292,17 @@ class ControllerLocalisationOrderStatus extends Controller {
 
 		$data['cancel'] = $this->url->link('localisation/order_status', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
-		$this->load->model('localisation/language');
 
-		$data['languages'] = $this->model_localisation_language->getLanguages();
+		if (isset($this->request->get['order_status_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+			$order_status_info = $this->model_localisation_order_status->getOrderStatus($this->request->get['order_status_id']);
+		}
 
-		if (isset($this->request->post['order_status'])) {
-			$data['order_status'] = $this->request->post['order_status'];
-		} elseif (isset($this->request->get['order_status_id'])) {
-			$data['order_status'] = $this->model_localisation_order_status->getOrderStatusDescriptions($this->request->get['order_status_id']);
+		if (isset($this->request->post['name'])) {
+			$data['name'] = $this->request->post['name'];
+		} elseif (!empty($order_status_info)) {
+			$data['name'] = $order_status_info['name'];
 		} else {
-			$data['order_status'] = array();
+			$data['name'] = '';
 		}
 
 		$data['header'] = $this->load->controller('common/header');
@@ -316,10 +317,9 @@ class ControllerLocalisationOrderStatus extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['order_status'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 3) || (utf8_strlen($value['name']) > 32)) {
-				$this->error['name'][$language_id] = $this->language->get('error_name');
-			}
+		
+		if ((utf8_strlen($this->request->post['name']) < 3) || (utf8_strlen($this->request->post['name']) > 32)) {
+			$this->error['name'] = $this->language->get('error_name');
 		}
 
 		return !$this->error;

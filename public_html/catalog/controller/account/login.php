@@ -85,7 +85,8 @@ class ControllerAccountLogin extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'href' => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		$data['breadcrumbs'][] = array(
@@ -95,7 +96,7 @@ class ControllerAccountLogin extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_login'),
-			'href' => $this->url->link('account/login', '', true)
+			'href' => false
 		);
 
 		if (isset($this->session->data['error'])) {
