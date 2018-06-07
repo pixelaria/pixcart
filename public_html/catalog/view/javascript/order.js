@@ -154,7 +154,8 @@ var Order = {
     $.ajax({ 
       type: 'get',
       url: '/index.php?route=/extension/payment/'+method+'/confirm',
-      success: function() {
+      success: function(data) {
+        console.log(data);
         location = '/index.php?route=checkout/success';
       }
     });
