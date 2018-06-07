@@ -104,16 +104,16 @@ class ControllerCheckoutConfirm extends Controller {
 		}
 		
 		// Additional data
-		if (isset($post['customer_comment'])) {
-			$order_data['customer_comment'] = $post['customer_comment'];
+		if (isset($post['comment'])) {
+			$order_data['comment'] = $post['comment'];
 		} else {
-			$order_data['customer_comment'] = ''; 
+			$order_data['comment'] = ''; 
 		}
 
-		if (isset($post['address'])) {
-			$order_data['address'] = $post['address'];
+		if (isset($post['shipping_address'])) {
+			$order_data['shipping_address'] = $post['shipping_address'];
 		} else {
-			$order_data['address'] = ''; 
+			$order_data['shipping_address'] = ''; 
 		}
 		
 

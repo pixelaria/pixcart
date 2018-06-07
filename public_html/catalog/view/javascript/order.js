@@ -78,7 +78,7 @@ var Order = {
     // Submitting order
     Order.$submit.click(function(e){
       if (Order.validate()) {
-        Order.submit();
+        //Order.submit();
       }
       return false;
     });
@@ -296,17 +296,16 @@ var Order = {
     $('.input-group__input--error').removeClass('input-group__input--error');
     
     if (Order.fields.firstname.val() == '') {
-      $('#firstname').addClass('input-group__input--error');
+      Order.fields.firstname.addClass('input-group__input--error');
     }
 
     if (Order.fields.lastname.val() == '') {
-      $('#lastname').addClass('input-group__input--error');
+      Order.fields.lastname.addClass('input-group__input--error');
     }
 
     if (Order.fields.phone.val() == '') {
-      $('#telephone').addClass('input-group__input--error');
+      Order.fields.phone.addClass('input-group__input--error');
     }
-
 
     if ($('.input-group__input--error').length) {
       Order.error('Заполните обязательные поля');
@@ -320,13 +319,14 @@ var Order = {
     }
 
     if (Order.shipping_method=='courier') {
+      console.log('validate addess');
       if (Order.fields.address.val() == '') {
         Order.error('Заполните поле "Адрес"');
         Order.fields.address.addClass('input-group__input--error');
         return false;
       }
     } 
-
+    
     return true;
   },
 
