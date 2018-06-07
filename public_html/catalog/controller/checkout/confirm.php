@@ -90,31 +90,51 @@ class ControllerCheckoutConfirm extends Controller {
     // Customer data
     if ($this->customer->isLogged()) {
 			$order_data['customer_id'] = $this->customer->getId();
-			$order_data['firstname'] = $this->customer->getFirstName();
+      $order_data['customer_group_id'] = $this->customer->getGroupId();
+      $order_data['firstname'] = $this->customer->getFirstName();
 			$order_data['lastname'] = $this->customer->getLastName();
 			$order_data['email'] = $this->customer->getEmail();
 			$order_data['telephone'] = $this->customer->getTelephone();
 		} else {
-			
 			$order_data['customer_id'] = 0;
+      $order_data['customer_group_id'] = 0;
 			$order_data['firstname'] = $post['firstname'];
 			$order_data['lastname'] = $post['lastname'];
 			$order_data['email'] = $post['email'];
 			$order_data['telephone'] = $post['telephone'];
 		}
 		
-		// Additional data
+		// TODO Shipping address
+    if ($session_data['shipping_method']['delivery']) {
+      
+      if (isset($post['shipping_address'])) {
+        $order_data['shipping_address'] = $post['shipping_address'];
+      } else {
+        $order_data['shipping_address'] = ''; 
+      }
+
+    } else {
+    
+    }
+
+    // TODO
+    $order_data['shipping_city'] = ''; 
+    $order_data['shipping_postcode'] = ''; 
+    $order_data['shipping_country'] = 'Россия'; 
+    $order_data['shipping_country_id'] = 0; 
+    $order_data['shipping_zone'] = ''; 
+    $order_data['shipping_zone_id'] = ''; 
+    $order_data['shipping_address'] = ''; 
+
+
+    // Additional data
 		if (isset($post['comment'])) {
 			$order_data['comment'] = $post['comment'];
 		} else {
 			$order_data['comment'] = ''; 
 		}
 
-		if (isset($post['shipping_address'])) {
-			$order_data['shipping_address'] = $post['shipping_address'];
-		} else {
-			$order_data['shipping_address'] = ''; 
-		}
+		
 		
 
 		// Products data

@@ -78,7 +78,8 @@ var Order = {
     // Submitting order
     Order.$submit.click(function(e){
       if (Order.validate()) {
-        //Order.submit();
+        console.log('validated, now submitting');
+        Order.submit();
       }
       return false;
     });
@@ -346,11 +347,12 @@ var Order = {
   },
 
   // Submit funcion
+  
   submit: function() {
     $.ajax({
       method: 'POST',
       url: '/index.php?route=checkout/confirm',
-      data: $('.order__form').serialize(),
+      data: $('.order').serialize(),
       dataType: 'json',
       success: function (data) {
         if (!data.status) {
