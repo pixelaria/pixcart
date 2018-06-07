@@ -752,6 +752,21 @@ class ControllerCatalogProduct extends Controller {
 			$categories = array();
 		}
 
+		if (isset($this->request->post['main_category_id'])) {
+			$data['main_category_id'] = $this->request->post['main_category_id'];
+		} elseif (isset($product_info)) {
+			$data['main_category_id'] = $this->model_catalog_product->getProductMainCategory($this->request->get['product_id']);
+		} else {
+			$data['main_category_id'] = 0;
+		}
+
+		if ($data['main_category_id']) {
+			$category_info = $this->model_catalog_category->getCategory($data['main_category_id']);
+			$data['main_category'] = $category_info['name'];
+		} else {
+			$data['main_category'] = '';
+		}
+
 		$data['product_categories'] = array();
 
 		foreach ($categories as $category_id) {
@@ -933,30 +948,6 @@ class ControllerCatalogProduct extends Controller {
 				'thumb'      => $this->model_tool_image->resize($thumb, 100, 100),
 				'sort_order' => $product_image['sort_order']
 			);
-		}
-
-		// Downloads
-		$this->load->model('catalog/download');
-
-		if (isset($this->request->post['product_download'])) {
-			$product_downloads = $this->request->post['product_download'];
-		} elseif (isset($this->request->get['product_id'])) {
-			$product_downloads = $this->model_catalog_product->getProductDownloads($this->request->get['product_id']);
-		} else {
-			$product_downloads = array();
-		}
-
-		$data['product_downloads'] = array();
-
-		foreach ($product_downloads as $download_id) {
-			$download_info = $this->model_catalog_download->getDownload($download_id);
-
-			if ($download_info) {
-				$data['product_downloads'][] = array(
-					'download_id' => $download_info['download_id'],
-					'name'        => $download_info['name']
-				);
-			}
 		}
 
 		if (isset($this->request->post['product_related'])) {

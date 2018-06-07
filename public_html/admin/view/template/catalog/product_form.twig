@@ -63,6 +63,15 @@
                   <div class="text-danger">{{ error_model }}</div>
                   {% endif %}</div>
               </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-main-category"><span data-toggle="tooltip" title="{{ help_main_category }}">{{ entry_main_category }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="main_category" value="{{ main_category }}" placeholder="{{ entry_main_category }}" id="input-main-category" class="form-control" />
+                  <input type="hidden" name="main_category_id" value="{{ main_category_id }}" />
+                </div>
+              </div>
+
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>
                 <div class="col-sm-10">
@@ -74,6 +83,7 @@
                     {% endfor %}</div>
                 </div>
               </div>
+
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-manufacturer"><span data-toggle="tooltip" title="{{ help_manufacturer }}">{{ entry_manufacturer }}</span></label>
                 <div class="col-sm-10">
@@ -849,6 +859,33 @@ $('input[name=\'manufacturer\']').autocomplete({
 		$('input[name=\'manufacturer_id\']').val(item['value']);
 	}
 });
+
+$('input[name=\'main_category\']').autocomplete({
+  'source': function(request, response) {
+    $.ajax({
+      url: 'index.php?route=catalog/category/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+      dataType: 'json',
+      success: function(json) {
+        json.unshift({
+          manufacturer_id: 0,
+          name: '{{ text_none }}'
+        });
+
+        response($.map(json, function(item) {
+          return {
+            label: item['name'],
+            value: item['category_id']
+          }
+        }));
+      }
+    });
+  },
+  'select': function(item) {
+    $('input[name=\'main_category\']').val(item['label']);
+    $('input[name=\'main_category_id\']').val(item['value']);
+  }
+});
+
 
 // Category
 $('input[name=\'category\']').autocomplete({

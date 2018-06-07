@@ -87,8 +87,7 @@ class ControllerStartupSeoUrl extends Controller {
 	      $this->request->get['route'] = 'product/product';
 	      if (!isset($this->request->get['path'])) {
 	        $path = $this->getPathByProduct($this->request->get['product_id']);
-
-	        if ($path) $this->request->get['path'] = $path;
+          if ($path) $this->request->get['path'] = $path;
 	      }
 	    } elseif (isset($this->request->get['path'])) {
 	      $this->request->get['route'] = 'product/category';
@@ -136,9 +135,6 @@ class ControllerStartupSeoUrl extends Controller {
 					if (!$data['path']) return $link;
 					
 					$data['product_id'] = $tmp['product_id'];
-					if (isset($tmp['tracking'])) {
-						$data['tracking'] = $tmp['tracking'];
-					}
 				}
 				break;
 
@@ -270,7 +266,7 @@ class ControllerStartupSeoUrl extends Controller {
       if (!isset($path)) $path = array();
     }
     if (!isset($path[$product_id])) {
-      $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product WHERE product_id = '" . $product_id . "' ORDER BY product_id DESC LIMIT 1");
+      $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . $product_id . "' AND main_category = 1 ORDER BY product_id DESC LIMIT 1");
 
       $path[$product_id] = $this->getPathByCategory($query->num_rows ? (int)$query->row['category_id'] : 0);
       
