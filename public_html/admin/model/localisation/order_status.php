@@ -1,7 +1,7 @@
 <?php
 class ModelLocalisationOrderStatus extends Model {
 	public function addOrderStatus($data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "order_status SET name = '" . $this->db->escape($value['name']) . "'");
+		$this->db->query("INSERT INTO " . DB_PREFIX . "order_status SET name = '" . $this->db->escape($data['name']) . "'");
 		
 		$order_status_id = $this->db->getLastId();
 		
