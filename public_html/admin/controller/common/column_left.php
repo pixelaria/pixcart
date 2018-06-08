@@ -229,13 +229,6 @@ class ControllerCommonColumnLeft extends Controller {
 				);	
 			}
 			
-			if ($this->user->hasPermission('access', 'sale/return')) {
-				$sale[] = array(
-					'name'	   => $this->language->get('text_return'),
-					'href'     => $this->url->link('sale/return', 'user_token=' . $this->session->data['user_token'], true),
-					'children' => array()		
-				);	
-			}
 			
 			if ($sale) {
 				$data['menus'][] = array(

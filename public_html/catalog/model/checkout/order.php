@@ -249,4 +249,15 @@ class ModelCheckoutOrder extends Model {
     }
   }
 
+  // Delete order
+  public function deleteOrder($order_id) {
+    // Void the order first
+    $this->addOrderHistory($order_id, 0);
+    $this->db->query("DELETE FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int)$order_id . "'");
+    $this->db->query("DELETE FROM `" . DB_PREFIX . "order_product` WHERE order_id = '" . (int)$order_id . "'");
+    $this->db->query("DELETE FROM `" . DB_PREFIX . "order_option` WHERE order_id = '" . (int)$order_id . "'");
+    $this->db->query("DELETE FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "'");
+    $this->db->query("DELETE FROM `" . DB_PREFIX . "order_history` WHERE order_id = '" . (int)$order_id . "'");
+  }
+
 }
