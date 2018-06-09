@@ -56,13 +56,13 @@ class ControllerCheckoutCheckout extends Controller {
 				);
 			}
 
-			/*
+			
 			// ------- Если клиент залогинен, получаем имя, телефон
 			if ($this->customer->isLogged()) {
-				$this->session->data['firstname']=$this->customer->getFirstName();
-				$this->session->data['lastname']=$this->customer->getLastName();
-				$this->session->data['phone']=$this->customer->getTelephone();
-				$this->session->data['email']=$this->customer->getEmail();
+				$data['firstname']=$this->customer->getFirstName();
+				$data['lastname']=$this->customer->getLastName();
+				$data['phone']=$this->customer->getTelephone();
+				$data['email']=$this->customer->getEmail();
 				
 				$this->load->model('account/address');
 				$addresses = $this->model_account_address->getAddresses(); // Default address
@@ -71,7 +71,7 @@ class ControllerCheckoutCheckout extends Controller {
 				}
 			} 
 
-			
+			/*
 			if ($this->customer->isLogged()) {
 				$customer_info = $this->model_account_customer->getCustomer($this->customer->getId());
 				
