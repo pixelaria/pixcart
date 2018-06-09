@@ -26,8 +26,9 @@ class ControllerAccountPassword extends Controller {
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text'  => $this->language->get('text_home'),
+			'href'  => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		$data['breadcrumbs'][] = array(
@@ -37,7 +38,7 @@ class ControllerAccountPassword extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('account/password', '', true)
+			'href' => false
 		);
 
 		if (isset($this->error['password'])) {

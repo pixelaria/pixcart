@@ -8,8 +8,9 @@ class ControllerAccountSuccess extends Controller {
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text'  => $this->language->get('text_home'),
+			'href'  => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		$data['breadcrumbs'][] = array(
@@ -19,7 +20,7 @@ class ControllerAccountSuccess extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_success'),
-			'href' => $this->url->link('account/success')
+			'href' => false
 		);
 
 		if ($this->customer->isLogged()) {
@@ -29,7 +30,7 @@ class ControllerAccountSuccess extends Controller {
 		}
 
 		if ($this->cart->hasProducts()) {
-			$data['continue'] = $this->url->link('checkout/cart');
+			$data['continue'] = $this->url->link('checkout/checkout');
 		} else {
 			$data['continue'] = $this->url->link('account/account', '', true);
 		}

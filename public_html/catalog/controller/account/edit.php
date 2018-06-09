@@ -31,8 +31,9 @@ class ControllerAccountEdit extends Controller {
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text'  => $this->language->get('text_home'),
+			'href'  => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		$data['breadcrumbs'][] = array(
@@ -42,7 +43,8 @@ class ControllerAccountEdit extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_edit'),
-			'href' => $this->url->link('account/edit', '', true)
+			'href' => false
+
 		);
 
 		if (isset($this->error['warning'])) {
@@ -73,12 +75,6 @@ class ControllerAccountEdit extends Controller {
 			$data['error_telephone'] = $this->error['telephone'];
 		} else {
 			$data['error_telephone'] = '';
-		}
-
-		if (isset($this->error['custom_field'])) {
-			$data['error_custom_field'] = $this->error['custom_field'];
-		} else {
-			$data['error_custom_field'] = array();
 		}
 
 		$data['action'] = $this->url->link('account/edit', '', true);
@@ -119,27 +115,6 @@ class ControllerAccountEdit extends Controller {
 			$data['telephone'] = '';
 		}
 
-		// Custom Fields
-		$data['custom_fields'] = array();
-		
-		$this->load->model('account/custom_field');
-
-		$custom_fields = $this->model_account_custom_field->getCustomFields($this->config->get('config_customer_group_id'));
-
-		foreach ($custom_fields as $custom_field) {
-			if ($custom_field['location'] == 'account') {
-				$data['custom_fields'][] = $custom_field;
-			}
-		}
-
-		if (isset($this->request->post['custom_field']['account'])) {
-			$data['account_custom_field'] = $this->request->post['custom_field']['account'];
-		} elseif (isset($customer_info)) {
-			$data['account_custom_field'] = json_decode($customer_info['custom_field'], true);
-		} else {
-			$data['account_custom_field'] = array();
-		}
-
 		$data['back'] = $this->url->link('account/account', '', true);
 
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -171,21 +146,6 @@ class ControllerAccountEdit extends Controller {
 
 		if ((utf8_strlen($this->request->post['telephone']) < 3) || (utf8_strlen($this->request->post['telephone']) > 32)) {
 			$this->error['telephone'] = $this->language->get('error_telephone');
-		}
-
-		// Custom field validation
-		$this->load->model('account/custom_field');
-
-		$custom_fields = $this->model_account_custom_field->getCustomFields('account', $this->config->get('config_customer_group_id'));
-
-		foreach ($custom_fields as $custom_field) {
-			if ($custom_field['location'] == 'account') {
-				if ($custom_field['required'] && empty($this->request->post['custom_field'][$custom_field['location']][$custom_field['custom_field_id']])) {
-					$this->error['custom_field'][$custom_field['custom_field_id']] = sprintf($this->language->get('error_custom_field'), $custom_field['name']);
-				} elseif (($custom_field['type'] == 'text') && !empty($custom_field['validation']) && !filter_var($this->request->post['custom_field'][$custom_field['location']][$custom_field['custom_field_id']], FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $custom_field['validation'])))) {
-					$this->error['custom_field'][$custom_field['custom_field_id']] = sprintf($this->language->get('error_custom_field'), $custom_field['name']);
-				}
-			}
 		}
 
 		return !$this->error;

@@ -200,7 +200,6 @@ class ControllerSaleOrder extends Controller {
 		);
 
 		$data['invoice'] = $this->url->link('sale/order/invoice', 'user_token=' . $this->session->data['user_token'], true);
-		$data['shipping'] = $this->url->link('sale/order/shipping', 'user_token=' . $this->session->data['user_token'], true);
 		$data['add'] = $this->url->link('sale/order/add', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['delete'] = str_replace('&amp;', '&', $this->url->link('sale/order/delete', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
@@ -530,8 +529,6 @@ class ControllerSaleOrder extends Controller {
 			$data['currency_code'] = $order_info['currency_code'];
 		} else {
 			$data['order_id'] = 0;
-			$data['store_id'] = 0;
-			$data['store_url'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
 			
 			$data['customer'] = '';
 			$data['customer_id'] = '';
@@ -1043,19 +1040,13 @@ class ControllerSaleOrder extends Controller {
 			$order_info = $this->model_sale_order->getOrder($order_id);
 
 			if ($order_info) {
-				$store_info = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
-
-				if ($store_info) {
-					$store_address = $store_info['config_address'];
-					$store_email = $store_info['config_email'];
-					$store_telephone = $store_info['config_telephone'];
-					$store_fax = $store_info['config_fax'];
-				} else {
-					$store_address = $this->config->get('config_address');
-					$store_email = $this->config->get('config_email');
-					$store_telephone = $this->config->get('config_telephone');
-					$store_fax = $this->config->get('config_fax');
-				}
+				$store_name = $this->config->get('config_name');
+				$store_url = $this->config->get('config_url');
+				$store_address = $this->config->get('config_address');
+				$store_email = $this->config->get('config_email');
+				$store_telephone = $this->config->get('config_telephone');
+				$store_fax = $this->config->get('config_fax');
+				
 
 				if ($order_info['invoice_no']) {
 					$invoice_no = $order_info['invoice_prefix'] . $order_info['invoice_no'];
@@ -1076,8 +1067,8 @@ class ControllerSaleOrder extends Controller {
 				);
 
 				$replace = array(
-					'firstname' => $order_info['shipping_firstname'],
-					'lastname'  => $order_info['shipping_lastname'],
+					'firstname' => $order_info['firstname'],
+					'lastname'  => $order_info['lastname'],
 					'address'   => $order_info['shipping_address'],
 					'city'      => $order_info['shipping_city'],
 					'postcode'  => $order_info['shipping_postcode'],
@@ -1142,8 +1133,8 @@ class ControllerSaleOrder extends Controller {
 					'order_id'	       => $order_id,
 					'invoice_no'       => $invoice_no,
 					'date_added'       => date($this->language->get('date_format_short'), strtotime($order_info['date_added'])),
-					'store_name'       => $order_info['store_name'],
-					'store_url'        => rtrim($order_info['store_url'], '/'),
+					'store_name'       => $store_name,
+					'store_url'        => rtrim($store_url, '/'),
 					'store_address'    => nl2br($store_address),
 					'store_email'      => $store_email,
 					'store_telephone'  => $store_telephone,
@@ -1152,7 +1143,6 @@ class ControllerSaleOrder extends Controller {
 					'telephone'        => $order_info['telephone'],
 					'shipping_address' => $shipping_address,
 					'shipping_method'  => $order_info['shipping_method'],
-					'payment_address'  => $payment_address,
 					'payment_method'   => $order_info['payment_method'],
 					'product'          => $product_data,
 					'total'            => $total_data,
@@ -1162,176 +1152,5 @@ class ControllerSaleOrder extends Controller {
 		}
 
 		$this->response->setOutput($this->load->view('sale/order_invoice', $data));
-	}
-
-	public function shipping() {
-		$this->load->language('sale/order');
-
-		$data['title'] = $this->language->get('text_shipping');
-
-		if ($this->request->server['HTTPS']) {
-			$data['base'] = HTTPS_SERVER;
-		} else {
-			$data['base'] = HTTP_SERVER;
-		}
-
-		$data['direction'] = $this->language->get('direction');
-		$data['lang'] = $this->language->get('code');
-
-		$this->load->model('sale/order');
-
-		$this->load->model('catalog/product');
-
-		$this->load->model('setting/setting');
-
-		$data['orders'] = array();
-
-		$orders = array();
-
-		if (isset($this->request->post['selected'])) {
-			$orders = $this->request->post['selected'];
-		} elseif (isset($this->request->get['order_id'])) {
-			$orders[] = $this->request->get['order_id'];
-		}
-
-		foreach ($orders as $order_id) {
-			$order_info = $this->model_sale_order->getOrder($order_id);
-
-			// Make sure there is a shipping method
-			if ($order_info && $order_info['shipping_code']) {
-				$store_info = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
-
-				if ($store_info) {
-					$store_address = $store_info['config_address'];
-					$store_email = $store_info['config_email'];
-					$store_telephone = $store_info['config_telephone'];
-				} else {
-					$store_address = $this->config->get('config_address');
-					$store_email = $this->config->get('config_email');
-					$store_telephone = $this->config->get('config_telephone');
-				}
-
-				if ($order_info['invoice_no']) {
-					$invoice_no = $order_info['invoice_prefix'] . $order_info['invoice_no'];
-				} else {
-					$invoice_no = '';
-				}
-
-				if ($order_info['shipping_address_format']) {
-					$format = $order_info['shipping_address_format'];
-				} else {
-					$format = '{firstname} {lastname}' . "\n" . '{company}' . "\n" . '{address_1}' . "\n" . '{address_2}' . "\n" . '{city} {postcode}' . "\n" . '{zone}' . "\n" . '{country}';
-				}
-
-				$find = array(
-					'{firstname}',
-					'{lastname}',
-					'{company}',
-					'{address_1}',
-					'{address_2}',
-					'{city}',
-					'{postcode}',
-					'{zone}',
-					'{zone_code}',
-					'{country}'
-				);
-
-				$replace = array(
-					'firstname' => $order_info['shipping_firstname'],
-					'lastname'  => $order_info['shipping_lastname'],
-					'company'   => $order_info['shipping_company'],
-					'address_1' => $order_info['shipping_address_1'],
-					'address_2' => $order_info['shipping_address_2'],
-					'city'      => $order_info['shipping_city'],
-					'postcode'  => $order_info['shipping_postcode'],
-					'zone'      => $order_info['shipping_zone'],
-					'zone_code' => $order_info['shipping_zone_code'],
-					'country'   => $order_info['shipping_country']
-				);
-
-				$shipping_address = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $format))));
-
-				$this->load->model('tool/upload');
-
-				$product_data = array();
-
-				$products = $this->model_sale_order->getOrderProducts($order_id);
-
-				foreach ($products as $product) {
-					$option_weight = '';
-
-					$product_info = $this->model_catalog_product->getProduct($product['product_id']);
-
-					if ($product_info) {
-						$option_data = array();
-
-						$options = $this->model_sale_order->getOrderOptions($order_id, $product['order_product_id']);
-
-						foreach ($options as $option) {
-							if ($option['type'] != 'file') {
-								$value = $option['value'];
-							} else {
-								$upload_info = $this->model_tool_upload->getUploadByCode($option['value']);
-
-								if ($upload_info) {
-									$value = $upload_info['name'];
-								} else {
-									$value = '';
-								}
-							}
-
-							$option_data[] = array(
-								'name'  => $option['name'],
-								'value' => $value
-							);
-
-							$product_option_value_info = $this->model_catalog_product->getProductOptionValue($product['product_id'], $option['product_option_value_id']);
-
-							if ($product_option_value_info) {
-								if ($product_option_value_info['weight_prefix'] == '+') {
-									$option_weight += $product_option_value_info['weight'];
-								} elseif ($product_option_value_info['weight_prefix'] == '-') {
-									$option_weight -= $product_option_value_info['weight'];
-								}
-							}
-						}
-
-						$product_data[] = array(
-							'name'     => $product_info['name'],
-							'model'    => $product_info['model'],
-							'option'   => $option_data,
-							'quantity' => $product['quantity'],
-							'location' => $product_info['location'],
-							'sku'      => $product_info['sku'],
-							'upc'      => $product_info['upc'],
-							'ean'      => $product_info['ean'],
-							'jan'      => $product_info['jan'],
-							'isbn'     => $product_info['isbn'],
-							'mpn'      => $product_info['mpn'],
-							'weight'   => $this->weight->format(($product_info['weight'] + (float)$option_weight) * $product['quantity'], $product_info['weight_class_id'], $this->language->get('decimal_point'), $this->language->get('thousand_point'))
-						);
-					}
-				}
-
-				$data['orders'][] = array(
-					'order_id'	       => $order_id,
-					'invoice_no'       => $invoice_no,
-					'date_added'       => date($this->language->get('date_format_short'), strtotime($order_info['date_added'])),
-					'store_name'       => $order_info['store_name'],
-					'store_url'        => rtrim($order_info['store_url'], '/'),
-					'store_address'    => nl2br($store_address),
-					'store_email'      => $store_email,
-					'store_telephone'  => $store_telephone,
-					'email'            => $order_info['email'],
-					'telephone'        => $order_info['telephone'],
-					'shipping_address' => $shipping_address,
-					'shipping_method'  => $order_info['shipping_method'],
-					'product'          => $product_data,
-					'comment'          => nl2br($order_info['comment'])
-				);
-			}
-		}
-
-		$this->response->setOutput($this->load->view('sale/order_shipping', $data));
 	}
 }
