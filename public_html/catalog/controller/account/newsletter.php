@@ -24,8 +24,9 @@ class ControllerAccountNewsletter extends Controller {
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text'  => $this->language->get('text_home'),
+			'href'  => $this->url->link('common/home'),
+			'class' => 'breadcrumbs__link--home'
 		);
 
 		$data['breadcrumbs'][] = array(
@@ -35,7 +36,7 @@ class ControllerAccountNewsletter extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_newsletter'),
-			'href' => $this->url->link('account/newsletter', '', true)
+			'href' => false
 		);
 
 		$data['action'] = $this->url->link('account/newsletter', '', true);
