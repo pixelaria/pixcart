@@ -63,37 +63,22 @@ class ControllerCheckoutCheckout extends Controller {
 				$data['lastname']=$this->customer->getLastName();
 				$data['phone']=$this->customer->getTelephone();
 				$data['email']=$this->customer->getEmail();
-				
+				$data['customer_id']=$this->customer->getId();
+				$data['customer_id']=$this->customer->getId();
 				$this->load->model('account/address');
 				$addresses = $this->model_account_address->getAddresses(); // Default address
 				if ($addresses) {
 					$this->session->data['addresses']=$addresses;
 				}
-			} 
+			} else {
+				$data['firstname']='';
+				$data['lastname']='';
+				$data['phone']='';
+				$data['email']='';
+				$data['customer_id']=0;
+				$data['customer_group_id']=0;
 
-			/*
-			if ($this->customer->isLogged()) {
-				$customer_info = $this->model_account_customer->getCustomer($this->customer->getId());
-				
-				$data['customer_id'] = $this->customer->getId();
-				$data['customer_group_id'] = $customer_info['customer_group_id'];
-				$data['firstname'] = $customer_info['firstname'];
-				$data['lastname'] = $customer_info['lastname'];
-				$data['email'] = $customer_info['email'];
-				$data['telephone'] = $customer_info['telephone'];
-
-			} 
-			
-			elseif (isset($this->session->data['guest'])) {
-				$data['customer_id'] = 0;
-				$data['customer_group_id'] = $this->session->data['guest']['customer_group_id'];
-				$data['firstname'] = $this->session->data['guest']['firstname'];
-				$data['lastname'] = $this->session->data['guest']['lastname'];
-				$data['email'] = $this->session->data['guest']['email'];
-				$data['telephone'] = $this->session->data['guest']['telephone'];
 			}
-			*/
-
 			// Все способы оплаты и доставки
 			$data['shipping_methods'] = $this->getShippingMethods();
 			$data['payment_methods'] = $this->getPaymentMethods();
