@@ -30,6 +30,23 @@
       <div id="filter-product" class="col-md-3 col-md-push-9 col-sm-12 hidden-sm hidden-xs">
         <div class="panel panel-default">
           <div class="panel-heading">
+            <h3 class="panel-title">Обновление цен</h3>
+          </div>
+          <div class="panel-body">
+            <div class="input-group">
+              <input class="form-control" readonly="" id="input-prices" placeholder="Файл" name="prices" type="text">
+              <input id="input-prices-file" name="input-prices-file" type="hidden">
+              <span class="input-group-btn">
+                <button class="btn btn-warning button-upload" data-loading-text="Загрузка..." id="button-upload-price" type="button"><i class="fa fa-upload"></i> Файл</button>
+                <button class="btn btn-success" data-toggle="tooltip" onclick="updatePrices();" type="button" data-original-title="Обновить">Обновить</button>
+              </span>
+
+            </div>
+            
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
             <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
           </div>
           <div class="panel-body">
@@ -53,77 +70,16 @@
               <label class="control-label" for="input-status">{{ entry_status }}</label>
               <select name="filter_status" id="input-status" class="form-control">
                 <option value=""></option>
-                
-                
-                
-                  
-                
-
                   {% if filter_status == '1' %}
-
-                
-                
-                  
-                
-                
                 <option value="1" selected="selected">{{ text_enabled }}</option>
-                
-                
-                
-                  
-                
-
                   {% else %}
-
-                
-                
-                  
-                
-                
                 <option value="1">{{ text_enabled }}</option>
-                
-                
-                
-                  
-                
-
                   {% endif %}
                   {% if filter_status == '0' %}
-
-                
-                
-                  
-                
-                
                 <option value="0" selected="selected">{{ text_disabled }}</option>
-                
-                
-                
-                  
-                
-
                   {% else %}
-
-                
-                
-                  
-                
-                
                 <option value="0">{{ text_disabled }}</option>
-                
-                
-                
-                  
-                
-
                   {% endif %}
-
-
-              
-              
-                
-              
-              
               </select>
             </div>
             <div class="form-group text-right">
@@ -195,6 +151,67 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+    function updatePrices(cnt) {
+      var file=$('#input-prices-file').val();
+      $.ajax({
+        url: 'index.php?route=catalog/download/updatePrices&user_token={{ user_token }}&file='+file,
+        type: 'post', 
+        dataType: 'json',  
+        cache: false,
+        contentType: false,
+        processData: false,   
+        success: function(json) {
+          if (json['error']) {
+            alert(json['error']);
+          }
+          if (json['success']) {
+            alert(json['success']);
+          }
+        },      
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+    }
+  
+    $('#button-upload-price').click(function() { 
+      var row = $(this).data('row');
+      $('#form-upload').remove();
+      $('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+      $('#form-upload input[name=\'file\']').trigger('click');
+      if (typeof timer != 'undefined') {
+        clearInterval(timer);
+      }
+      timer = setInterval(function() {
+        if ($('#form-upload input[name=\'file\']').val() != '') {
+          clearInterval(timer);   
+          $.ajax({
+            url: 'index.php?route=catalog/download/uploadPrices&token=UXcvCNB8bJoumWmy2gyk9vrf85MKkNVV',
+            type: 'post',   
+            dataType: 'json',
+            data: new FormData($('#form-upload')[0]),
+            cache: false,
+            contentType: false,
+            processData: false,   
+            success: function(json) {
+              if (json['error']) {
+                alert(json['error']);
+              }
+              if (json['success']) {
+                alert(json['success']);
+                $('#input-prices').attr('value', json['mask']);
+                $('#input-prices-file').attr('value', json['filename']);
+              }
+            },      
+            error: function(xhr, ajaxOptions, thrownError) {
+              alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+          });
+        }
+      }, 500);
+    });
+  </script>
   <script type="text/javascript"><!--
 $('#button-filter').on('click', function() {
 	var url = '';

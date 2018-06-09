@@ -1128,4 +1128,126 @@ class ControllerCatalogProduct extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
+
+	// Price management
+
+	public function uploadPrices() {
+		$this->load->language('catalog/download');
+		$json = array();
+
+		// Check user has permission
+		if (!$this->user->hasPermission('modify', 'catalog/download')) {
+			$json['error'] = $this->language->get('error_permission');
+		}
+
+		if (!$json) {
+			if (!empty($this->request->files['file']['name']) && is_file($this->request->files['file']['tmp_name'])) {
+				// Sanitize the filename
+				$filename = basename(html_entity_decode($this->request->files['file']['name'], ENT_QUOTES, 'UTF-8'));
+
+				// Validate the filename length
+				if ((utf8_strlen($filename) < 3) || (utf8_strlen($filename) > 128)) {
+					$json['error'] = $this->language->get('error_filename');
+				}
+				
+				// Return any upload error
+				if ($this->request->files['file']['error'] != UPLOAD_ERR_OK) {
+					$json['error'] = $this->language->get('error_upload_' . $this->request->files['file']['error']);
+				}
+			} else {
+				$json['error'] = $this->language->get('error_upload');
+			}
+		}
+
+		if (!$json) {
+			$file = $filename . '.' . token(32);
+
+			move_uploaded_file($this->request->files['file']['tmp_name'], DIR_DOWNLOAD . $file);
+
+			$json['filename'] = $file;
+			$json['mask'] = $filename;
+
+			$json['success'] = $this->language->get('text_upload');
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function updatePrices() {
+		$this->load->language('catalog/download');
+		$this->load->model('catalog/download');
+		$json = array();
+
+		if (!$this->user->hasPermission('modify', 'catalog/download')) {
+			$json['error'] = $this->language->get('error_permission');
+		}
+		if (!$json) {
+			$file=DIR_DOWNLOAD.$this->request->get['file'];
+			if ($file) {
+				require_once DIR_SYSTEM."/library/PHPExcel/PHPExcel.php";
+				$PHPExcel_file = PHPExcel_IOFactory::load($file);
+				foreach ($PHPExcel_file->getWorksheetIterator() as $worksheet) {
+					$ExelData = array(); //Массив всех значений значений
+					$columns_count = PHPExcel_Cell::columnIndexFromString($worksheet->getHighestColumn()); // Количество столбцов на листе Excel
+					$rows_count = $worksheet->getHighestRow(); // Количество строк на листе Excel
+
+					$product=array();
+					$product['options']=array();
+					$current=0; // текущий ID
+					$cnt=0;//счетчик
+					for ($row = 2; $row <= $rows_count; $row++) { //Перебираем строки листа Excel со второй, т.к первая строка это названия столбцов
+						$temp_arr = array();
+					    for ($column = 0; $column < 5; $column++) {
+					    	$cell = $worksheet->getCellByColumnAndRow($column, $row);
+					    	$temp_arr[$column] = $cell->getCalculatedValue();
+					    }
+						$ass = array( //Запихиваем в ассоциативный массив
+							'id' 		=> $temp_arr[0],
+							'option_id' => $temp_arr[1],
+							'name'  	=> $temp_arr[2],
+							'size' 		=> $temp_arr[3],
+							'price'  	=> $temp_arr[4]
+						);
+						if ($current==0) { $product['id']=$ass['id']; $current=$ass['id'];}
+						if ($current!=$ass['id']) { //если не совпадает с текущим
+							if ($cnt==1) {//если всего 1 запись
+								$product['price']=$product['options'][0]['price'];
+								$product['options']=null;
+							} else {
+								$min=$product['options'][0]['price'];
+								foreach ($product['options'] as $option) {
+									if ($option['price']<$min) $min=$option['price'];
+								}
+								$product['price']=$min;
+							}
+							$product['cnt']=$cnt;
+							$cnt=1;
+							$ExelData[] = $product; //Запихиваем в общий массив
+							$product=array();
+							$product['id']=$ass['id'];
+							$product['options']=array();
+							$current=$ass['id'];
+						} else {
+							$cnt++;
+						}
+						
+						$product['options'][]=array('option_id' => $ass['option_id'],'price'=> $ass['price']);
+						
+					}
+					$results=0;
+					$results = $this->model_catalog_download->updatePrices($ExelData);
+					if ($results) {
+						$json['success'] = "Цены успешно обновлены";
+						unlink($file);
+					} else {
+						$json['error'] = "Ошибка при обновлении цен. Обратитесь к разработчику.";
+					}
+				}
+			}
+		}
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
 }
