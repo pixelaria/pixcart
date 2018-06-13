@@ -255,7 +255,11 @@ class ControllerProductProduct extends Controller {
 			}
 
 			$data['price'] = $this->currency->format($product_info['price'], $this->session->data['currency']);
-			$data['special'] = $this->currency->format($product_info['special'], $this->session->data['currency']);
+			if ($product_info['special']) {
+				$data['special'] = $this->currency->format($product_info['special'], $this->session->data['currency']);
+			} else {
+				$data['special'] = false;
+			}
 			
 			$discounts = $this->model_catalog_product->getProductDiscounts($this->request->get['product_id']);
 
