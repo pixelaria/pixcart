@@ -6,6 +6,13 @@ class ModelLocalisationLanguage extends Model {
 		return $query->row;
 	}
 
+	public function getLanguageByCode($code) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "language WHERE code = '" . $code . "'");
+
+		return $query->row;
+	}
+	 
+	/*
 	public function getLanguages() {
 		$language_data = $this->cache->get('language');
 
@@ -32,4 +39,5 @@ class ModelLocalisationLanguage extends Model {
 
 		return $language_data;
 	}
+	*/
 }
