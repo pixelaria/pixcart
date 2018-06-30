@@ -9,6 +9,7 @@ class ControllerCatalogProduct extends Controller {
 
 		$this->load->model('catalog/product');
 
+		echo DIR_UPLOAD;
 		$this->getList();
 	}
 
@@ -1134,9 +1135,9 @@ class ControllerCatalogProduct extends Controller {
 	public function uploadPrices() {
 		$this->load->language('catalog/download');
 		$json = array();
-
+		
 		// Check user has permission
-		if (!$this->user->hasPermission('modify', 'catalog/download')) {
+		if (!$this->user->hasPermission('modify', 'catalog/product')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
@@ -1162,13 +1163,15 @@ class ControllerCatalogProduct extends Controller {
 		if (!$json) {
 			$file = $filename . '.' . token(32);
 
-			move_uploaded_file($this->request->files['file']['tmp_name'], DIR_DOWNLOAD . $file);
+			move_uploaded_file($this->request->files['file']['tmp_name'], DIR_UPLOAD . $file);
 
 			$json['filename'] = $file;
 			$json['mask'] = $filename;
 
-			$json['success'] = $this->language->get('text_upload');
+			$json['success'] = 'Файл успешно загружен';
 		}
+		
+		$json['test'] = 'test uplaod';
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
@@ -1176,76 +1179,91 @@ class ControllerCatalogProduct extends Controller {
 
 	public function updatePrices() {
 		$this->load->language('catalog/download');
-		$this->load->model('catalog/download');
+		$this->load->model('catalog/product');
+		
 		$json = array();
 
-		if (!$this->user->hasPermission('modify', 'catalog/download')) {
+		if (!$this->user->hasPermission('modify', 'catalog/product')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
+
 		if (!$json) {
-			$file=DIR_DOWNLOAD.$this->request->get['file'];
+			$file=DIR_UPLOAD.$this->request->get['file'];
 			if ($file) {
+				echo '---- Has file'.'<br>';
 				require_once DIR_SYSTEM."/library/PHPExcel/PHPExcel.php";
+				
 				$PHPExcel_file = PHPExcel_IOFactory::load($file);
+				
+				echo '---- File loaded to excel'.'<br>';
+				
 				foreach ($PHPExcel_file->getWorksheetIterator() as $worksheet) {
-					$ExelData = array(); //Массив всех значений значений
+					
+					$excel_data = array(); //Массив всех значений значений
 					$columns_count = PHPExcel_Cell::columnIndexFromString($worksheet->getHighestColumn()); // Количество столбцов на листе Excel
 					$rows_count = $worksheet->getHighestRow(); // Количество строк на листе Excel
 
-					$product=array();
-					$product['options']=array();
-					$current=0; // текущий ID
-					$cnt=0;//счетчик
+					$product = array();
+					$current = 0; // текущий ID
+					
+					echo '---- Rows:'.$rows_count. '<br>';
+
 					for ($row = 2; $row <= $rows_count; $row++) { //Перебираем строки листа Excel со второй, т.к первая строка это названия столбцов
 						$temp_arr = array();
-					    for ($column = 0; $column < 5; $column++) {
-					    	$cell = $worksheet->getCellByColumnAndRow($column, $row);
-					    	$temp_arr[$column] = $cell->getCalculatedValue();
-					    }
-						$ass = array( //Запихиваем в ассоциативный массив
-							'id' 		=> $temp_arr[0],
-							'option_id' => $temp_arr[1],
-							'name'  	=> $temp_arr[2],
-							'size' 		=> $temp_arr[3],
-							'price'  	=> $temp_arr[4]
-						);
-						if ($current==0) { $product['id']=$ass['id']; $current=$ass['id'];}
-						if ($current!=$ass['id']) { //если не совпадает с текущим
-							if ($cnt==1) {//если всего 1 запись
-								$product['price']=$product['options'][0]['price'];
-								$product['options']=null;
-							} else {
-								$min=$product['options'][0]['price'];
-								foreach ($product['options'] as $option) {
-									if ($option['price']<$min) $min=$option['price'];
-								}
-								$product['price']=$min;
-							}
-							$product['cnt']=$cnt;
-							$cnt=1;
-							$ExelData[] = $product; //Запихиваем в общий массив
-							$product=array();
-							$product['id']=$ass['id'];
-							$product['options']=array();
-							$current=$ass['id'];
-						} else {
-							$cnt++;
+						
+						for ($column = 0; $column < 12; $column++) {
+							$cell = $worksheet->getCellByColumnAndRow($column, $row);
+							$temp_arr[$column] = $cell->getCalculatedValue();
 						}
 						
-						$product['options'][]=array('option_id' => $ass['option_id'],'price'=> $ass['price']);
+						$empty = true;
+
+						for ($column = 0; $column < 12; $column++) {
+							if ($temp_arr[$column] !== null && $temp_arr[$column] !== '') {
+								$empty = false;
+								break;
+							}
+						}
 						
+						if ($empty) break; // Останавливаем если строка пустая (все ячейки null или '')
+
+						$product = array( //Запихиваем в ассоциативный массив
+							'id'              => $temp_arr[0],
+							'category_id'     => $temp_arr[1],
+							'manufacturer_id' => $temp_arr[2],
+							'name'            => $temp_arr[3],
+							'sku'             => $temp_arr[4],
+							'category'        => $temp_arr[5],
+							'price'  	        => $temp_arr[6],
+							'manufacturer'    => $temp_arr[7],
+							'description'     => $temp_arr[8],
+							'spacer'          => $temp_arr[9],
+							'photo'           => $temp_arr[10],
+							'sort'            => $temp_arr[11]
+						);
+						
+						echo '<pre>';
+						print_r($product);
+						echo '</pre><br>';
+					
+						$excel_data[] = $product; //Запихиваем в общий массив
 					}
+
 					$results=0;
-					$results = $this->model_catalog_download->updatePrices($ExelData);
+
+					
+					//$results = $this->model_catalog_product->updatePrices($excel_data);
+					
 					if ($results) {
 						$json['success'] = "Цены успешно обновлены";
-						unlink($file);
+						//unlink($file);
 					} else {
 						$json['error'] = "Ошибка при обновлении цен. Обратитесь к разработчику.";
 					}
 				}
 			}
 		}
+		
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}

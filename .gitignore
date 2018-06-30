@@ -9,6 +9,10 @@ public_html/system/storage/cache
 
 public_html/system/storage/logs
 
+public_html/system/storage/upload
+
+public_html/system/storage/download
+
 public_html/catalog/view/theme
 
 public_html/svg/

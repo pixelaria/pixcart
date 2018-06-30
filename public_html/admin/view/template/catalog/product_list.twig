@@ -155,7 +155,7 @@
     function updatePrices(cnt) {
       var file=$('#input-prices-file').val();
       $.ajax({
-        url: 'index.php?route=catalog/download/updatePrices&user_token={{ user_token }}&file='+file,
+        url: 'index.php?route=catalog/product/updatePrices&user_token={{ user_token }}&file='+file,
         type: 'post', 
         dataType: 'json',  
         cache: false,
@@ -187,7 +187,7 @@
         if ($('#form-upload input[name=\'file\']').val() != '') {
           clearInterval(timer);   
           $.ajax({
-            url: 'index.php?route=catalog/download/uploadPrices&token=UXcvCNB8bJoumWmy2gyk9vrf85MKkNVV',
+            url: 'index.php?route=catalog/product/uploadPrices&user_token={{ user_token }}',
             type: 'post',   
             dataType: 'json',
             data: new FormData($('#form-upload')[0]),
@@ -212,6 +212,7 @@
       }, 500);
     });
   </script>
+
   <script type="text/javascript"><!--
 $('#button-filter').on('click', function() {
 	var url = '';
@@ -294,5 +295,6 @@ $('input[name=\'filter_model\']').autocomplete({
 		$('input[name=\'filter_model\']').val(item['label']);
 	}
 });
-//--></script></div>
+//--></script>
+</div>
 {{ footer }} 
