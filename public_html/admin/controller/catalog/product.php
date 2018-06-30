@@ -9,7 +9,6 @@ class ControllerCatalogProduct extends Controller {
 
 		$this->load->model('catalog/product');
 
-		echo DIR_UPLOAD;
 		$this->getList();
 	}
 
@@ -1242,17 +1241,13 @@ class ControllerCatalogProduct extends Controller {
 							'sort'            => $temp_arr[11]
 						);
 						
-						echo '<pre>';
-						print_r($product);
-						echo '</pre><br>';
-					
 						$excel_data[] = $product; //Запихиваем в общий массив
 					}
 
 					$results=0;
 
 					
-					//$results = $this->model_catalog_product->updatePrices($excel_data);
+					$results = $this->model_catalog_product->uploadProducts($excel_data);
 					
 					if ($results) {
 						$json['success'] = "Цены успешно обновлены";

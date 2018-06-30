@@ -542,4 +542,118 @@ class ModelCatalogProduct extends Model {
 		return $query->row['total'];
 	}
 
+
+	public function uploadProducts($data) {
+		$result = array();
+		
+		foreach ($data as &$_product) {
+			
+			if ($_product['category_id'] == null || $_product['category_id']=='') { //если нет id category, то получаем его
+				$_c_query = $this->db->query("SELECT category_id from " . DB_PREFIX . "category_description "." WHERE name LIKE '" . $this->db->escape($_product['category']) . "' LIMIT 1");
+				if ($_c_query->num_rows) {
+					$_product['category_id'] = $_c_query->row['category_id'];
+				}
+			}
+
+			if ($_product['manufacturer_id']== null || $_product['manufacturer_id']=='') { //если нет id manufacturer, то получаем его
+				$_m_query = $this->db->query("SELECT manufacturer_id from " . DB_PREFIX . "manufacturer "." WHERE name LIKE '" . $this->db->escape($_product['manufacturer']) . "' LIMIT 1");
+				
+				if ($_m_query->num_rows) {
+					$_product['manufacturer_id'] = $_m_query->row['manufacturer_id'];
+				} else {
+					$_product['manufacturer_id'] = 0;
+
+					$this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer SET name = '" . $this->db->escape($_product['manufacturer']) . "', sort_order = '0'");
+
+					$manufacturer_id = $this->db->getLastId();
+					
+					// Получаем seo-url
+					$_keyword = mb_strtolower($_product['manufacturer']);
+					$_keyword = $this->rus2translit($_keyword);
+
+					$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET query = 'manufacturer_id=" . (int)$manufacturer_id . "', keyword = '" . $this->db->escape($_keyword) . "'");
+
+					$_product['manufacturer_id'] = $manufacturer_id;
+				}
+			}
+
+			$exist = false;
+
+			if ($_product['id']!= null && $_product['id']!='') {
+				$_query = $this->db->query('SELECT * from " . DB_PREFIX . "product WHERE product_id = "'.(int)$_product['id'].'"');
+				$exist = ($_query->num_rows);
+			} 
+
+			if ($exist) {
+				$this->db->query("UPDATE " . DB_PREFIX . "product SET price = ".$_product['price']." WHERE product_id=".(int)$_product['id']."");
+			} else {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product SET ".
+					" model = '" . $this->db->escape($_product['sku']) . 
+					"', manufacturer_id = '" . (int)$_product['manufacturer_id'] . 
+					"', price = '" . (float)$_product['price'] . 
+					"', sort_order = '" . (int)$_product['sort'] . 
+					"', image = 'catalog/catalog" .  $this->db->escape($_product['photo']) . 
+					"', stock_status_id = 7, length_class_id = 0, weight_class_id = 0, length = 0, width = 0, height = 0, weight = 0 ".
+					", quantity = '1', subtract = 0, status = '1', date_added = NOW(), date_modified = NOW(), date_available = NOW()");
+
+				$product_id = $this->db->getLastId();
+
+				$_model = $_product['category_id'].''.$product_id;
+				$this->db->query("UPDATE " . DB_PREFIX . "product SET model = ".$_model." WHERE product_id=".(int)$product_id."");
+
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$_product['category_id'] . "', main_category = 1");
+
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET ".
+					"  product_id = '" . (int)$product_id . 
+					"', name = '" . $this->db->escape($_product['name']) . 
+					"', description = '" . $this->db->escape($_product['description']) . 
+					"', meta_h1 = '" . $this->db->escape($_product['name']) . 
+					"', meta_title = '" . $this->db->escape($_product['name']) . 
+					"', meta_description = '', meta_keyword = '', tag = ''");
+
+				// Получаем seo-url
+				$_keyword = mb_strtolower($_product['name']);
+				$_keyword = $this->rus2translit($_keyword);
+
+				$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET ".
+					"  query = 'product_id=" . (int)$product_id . 
+					"', keyword = '" . $this->db->escape($_keyword) . "'");
+			}
+    }
+    return $result;
+	}
+
+
+
+	public function rus2translit($string) {
+    $converter = array(
+        'а' => 'a',   'б' => 'b',   'в' => 'v',
+        'г' => 'g',   'д' => 'd',   'е' => 'e',
+        'ё' => 'e',   'ж' => 'zh',  'з' => 'z',
+        'и' => 'i',   'й' => 'y',   'к' => 'k',
+        'л' => 'l',   'м' => 'm',   'н' => 'n',
+        'о' => 'o',   'п' => 'p',   'р' => 'r',
+        'с' => 's',   'т' => 't',   'у' => 'u',
+        'ф' => 'f',   'х' => 'h',   'ц' => 'c',
+        'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
+        'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
+        'э' => 'e',   'ю' => 'yu',  'я' => 'ya',
+        
+        'А' => 'A',   'Б' => 'B',   'В' => 'V',
+        'Г' => 'G',   'Д' => 'D',   'Е' => 'E',
+        'Ё' => 'E',   'Ж' => 'Zh',  'З' => 'Z',
+        'И' => 'I',   'Й' => 'Y',   'К' => 'K',
+        'Л' => 'L',   'М' => 'M',   'Н' => 'N',
+        'О' => 'O',   'П' => 'P',   'Р' => 'R',
+        'С' => 'S',   'Т' => 'T',   'У' => 'U',
+        'Ф' => 'F',   'Х' => 'H',   'Ц' => 'C',
+        'Ч' => 'Ch',  'Ш' => 'Sh',  'Щ' => 'Sch',
+        'Ь' => '\'',  'Ы' => 'Y',   'Ъ' => '\'',
+        'Э' => 'E',   'Ю' => 'Yu',  'Я' => 'Ya',
+
+        ' ' => '-',    '(' => '',    ')' => '',
+        '.' => '',     ',' => ''
+    );
+    return strtr($string, $converter);
+	}
 }
