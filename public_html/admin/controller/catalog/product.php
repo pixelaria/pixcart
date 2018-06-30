@@ -1189,23 +1189,24 @@ class ControllerCatalogProduct extends Controller {
 		if (!$json) {
 			$file=DIR_UPLOAD.$this->request->get['file'];
 			if ($file) {
-				echo '---- Has file'.'<br>';
+				//echo '---- Has file'.'<br>';
 				require_once DIR_SYSTEM."/library/PHPExcel/PHPExcel.php";
 				
 				$PHPExcel_file = PHPExcel_IOFactory::load($file);
 				
-				echo '---- File loaded to excel'.'<br>';
+				//echo '---- File loaded to excel'.'<br>';
 				
+				$counter = 0; // текущий ID
+
 				foreach ($PHPExcel_file->getWorksheetIterator() as $worksheet) {
 					
-					$excel_data = array(); //Массив всех значений значений
 					$columns_count = PHPExcel_Cell::columnIndexFromString($worksheet->getHighestColumn()); // Количество столбцов на листе Excel
 					$rows_count = $worksheet->getHighestRow(); // Количество строк на листе Excel
 
 					$product = array();
-					$current = 0; // текущий ID
 					
-					echo '---- Rows:'.$rows_count. '<br>';
+					
+					//echo '---- Rows:'.$rows_count. '<br>';
 
 					for ($row = 2; $row <= $rows_count; $row++) { //Перебираем строки листа Excel со второй, т.к первая строка это названия столбцов
 						$temp_arr = array();
@@ -1241,17 +1242,31 @@ class ControllerCatalogProduct extends Controller {
 							'sort'            => $temp_arr[11]
 						);
 						
-						$excel_data[] = $product; //Запихиваем в общий массив
+
+						$result = $this->model_catalog_product->uploadProduct($product);
+
+						if ($result) {
+							$counter++;
+
+							$_p_cell = $worksheet->getCellByColumnAndRow(0, $row);
+							$_c_cell = $worksheet->getCellByColumnAndRow(1, $row);
+							$_m_cell = $worksheet->getCellByColumnAndRow(2, $row);
+
+							$_p_cell->setValue($result['id']);
+							$_c_cell->setValue($result['category_id']);
+							$_m_cell->setValue($result['manufacturer_id']);
+						}
 					}
 
-					$results=0;
+					if ($result) {
+						$json['success'] = "Цены успешно обновлены. Загружено: ".$counter;
+						
+						$objWriter = PHPExcel_IOFactory::createWriter($PHPExcel_file, 'Excel2007');
+						$objWriter->save(DIR_UPLOAD.'/updated.xlsx');
+
+						$json['link'] = DIR_UPLOAD.'/updated.xlsx';
 
 					
-					$results = $this->model_catalog_product->uploadProducts($excel_data);
-					
-					if ($results) {
-						$json['success'] = "Цены успешно обновлены";
-						//unlink($file);
 					} else {
 						$json['error'] = "Ошибка при обновлении цен. Обратитесь к разработчику.";
 					}

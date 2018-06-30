@@ -42,7 +42,7 @@
               </span>
 
             </div>
-            
+            <a href="#" class="control-label" id="updated" style="display:none; margin-top:15px;">Обновленный файл</a>
           </div>
         </div>
         <div class="panel panel-default">
@@ -167,7 +167,12 @@
           }
           if (json['success']) {
             alert(json['success']);
+            if (json['link']) {
+              $('#updated').attr('href',json['link']);
+              $('#updated').show();
+            }
           }
+
         },      
         error: function(xhr, ajaxOptions, thrownError) {
           alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
