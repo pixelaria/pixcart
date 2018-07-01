@@ -9,18 +9,19 @@ class ControllerExtensionModuleAside extends Controller {
 			$parts = array();
 		}
 
-		if (isset($parts[0])) {
-			$data['category_id'] = $parts[0];
+		if (isset($parts[1])) {
+			$data['category_id'] = $parts[1];
 		} else {
 			$data['category_id'] = 0;
 		}
 
-		if (isset($parts[1])) {
-			$data['child_id'] = $parts[1];
+		if (isset($parts[2])) {
+			$data['child_id'] = $parts[2];
 		} else {
 			$data['child_id'] = 0;
 		}
 
+	
 		$this->load->model('catalog/category');
 
 		$this->load->model('catalog/product');

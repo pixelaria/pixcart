@@ -601,6 +601,7 @@ class ModelCatalogProduct extends Model {
 
 			$_model = $_product['category_id'].''.$product_id;
 			$this->db->query("UPDATE " . DB_PREFIX . "product SET model = ".$_model." WHERE product_id=".(int)$product_id."");
+			$_product['sku'] = $_model;
 
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$_product['category_id'] . "', main_category = 1");
 

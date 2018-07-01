@@ -1251,20 +1251,24 @@ class ControllerCatalogProduct extends Controller {
 							$_p_cell = $worksheet->getCellByColumnAndRow(0, $row);
 							$_c_cell = $worksheet->getCellByColumnAndRow(1, $row);
 							$_m_cell = $worksheet->getCellByColumnAndRow(2, $row);
+							$_s_cell = $worksheet->getCellByColumnAndRow(4, $row);
 
 							$_p_cell->setValue($result['id']);
 							$_c_cell->setValue($result['category_id']);
 							$_m_cell->setValue($result['manufacturer_id']);
+							$_s_cell->setValue($result['id']);
 						}
 					}
 
 					if ($result) {
+						unlink(DIR_UPLOAD.'/updated.xlsx'); //удаляем старый файл
+						
 						$json['success'] = "Цены успешно обновлены. Загружено: ".$counter;
 						
 						$objWriter = PHPExcel_IOFactory::createWriter($PHPExcel_file, 'Excel2007');
 						$objWriter->save(DIR_UPLOAD.'/updated.xlsx');
 
-						$json['link'] = DIR_UPLOAD.'/updated.xlsx';
+						$json['link'] = true;
 
 					
 					} else {
@@ -1276,6 +1280,33 @@ class ControllerCatalogProduct extends Controller {
 		
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
+	}
+
+	public function downloadPrices() {
+			$file = DIR_UPLOAD.'/updated.xlsx';
+			if (!headers_sent()) {
+				if (file_exists($file)) {
+					header('Content-Type: application/octet-stream');
+					header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+					header('Expires: 0');
+					header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+					header('Pragma: public');
+					header('Content-Length: ' . filesize($file));
+
+					if (ob_get_level()) {
+						ob_end_clean();
+					}
+					
+					readfile($file, 'rb');
+
+					exit();
+				} else {
+					exit('Error: Could not find file ' . $file . '!');
+				}
+			} else {
+				exit('Error: Headers already sent out!');
+			}
+		
 	}
 
 }

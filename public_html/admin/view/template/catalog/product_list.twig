@@ -154,6 +154,8 @@
   <script type="text/javascript">
     function updatePrices(cnt) {
       var file=$('#input-prices-file').val();
+      var link = 'index.php?route=catalog/product/downloadPrices&user_token={{ user_token }}';
+      
       $.ajax({
         url: 'index.php?route=catalog/product/updatePrices&user_token={{ user_token }}&file='+file,
         type: 'post', 
@@ -168,7 +170,7 @@
           if (json['success']) {
             alert(json['success']);
             if (json['link']) {
-              $('#updated').attr('href',json['link']);
+              $('#updated').attr('href',link);
               $('#updated').show();
             }
           }
